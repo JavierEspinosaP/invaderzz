@@ -2,6 +2,13 @@ var config = {
     type: Phaser.WEBGL,
     width: 800,
     height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            fps: 60,
+            gravity: { y: 0 }
+        }
+    },
     backgroundColor: '#2d2d2d',
     parent: 'phaser-example',
     scene: {
@@ -68,7 +75,11 @@ function create ()
         runChildUpdate: true
     });
 
-    ship = this.add.sprite(400, 500, 'ship').setDepth(1);
+    ship = this.physics.add.image(400, 300, 'ship');
+
+    ship.setDamping(true);
+    ship.setDrag(0.3);
+    ship.setMaxVelocity(200);
 
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -77,13 +88,26 @@ function create ()
 
 function update (time, delta)
 {
+    if (cursors.up.isDown)
+    {
+        this.physics.velocityFromRotation(ship.rotation + 300, 300, ship.body.acceleration);
+    }
+    else
+    {
+        ship.setAcceleration(0);
+    }
+
     if (cursors.left.isDown)
     {
-        ship.x -= speed * delta;
+        ship.setAngularVelocity(-300);
     }
     else if (cursors.right.isDown)
     {
-        ship.x += speed * delta;
+        ship.setAngularVelocity(300);
+    }
+    else
+    {
+        ship.setAngularVelocity(0);
     }
 
     if (cursors.up.isDown && time > lastFired)
@@ -97,4 +121,5 @@ function update (time, delta)
             lastFired = time + 50;
         }
     }
+    this.physics.world.wrap(ship, 32);
 }
