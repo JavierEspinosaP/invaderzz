@@ -28,6 +28,7 @@ let keyA;
 let keyS;
 let keyD;
 let keyW;
+let angle
 
 var game = new Phaser.Game(config);
 
@@ -54,17 +55,17 @@ function create() {
 
 
     const x = this.scale.width * 0.5
-	const y = this.scale.height * 0.5
+    const y = this.scale.height * 0.5
 
-	// // red rectangle
-	// const rect = this.add.rectangle(x, y, 100, 50, 0xff0000, 1)
+    // // red rectangle
+    // const rect = this.add.rectangle(x, y, 100, 50, 0xff0000, 1)
 
 
-	// vector to edge of rectangle
-	const vec = this.physics.velocityFromAngle(ship.angle - 90, 50)
+    // vector to edge of rectangle
+    const vec = this.physics.velocityFromAngle(ship.angle - 90, 50)
 
-	// draw a circle to show the position
-	this.add.circle(ship.x + vec.x, ship.y + vec.y, 10, 0xffffff, 1)
+    // draw a circle to show the position
+    this.add.circle(ship.x + vec.x, ship.y + vec.y, 10, 0xffffff, 1)
 
     var Bullet = new Phaser.Class({
 
@@ -74,21 +75,32 @@ function create() {
 
             function Bullet(scene) {
                 Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
-   
+
                 this.speed = Phaser.Math.GetSpeed(600, 1);
             },
 
         fire: function (x, y) {
-            this.setPosition(x, y - 50);
+            angle = ship.rotation
+            const xBullet = Math.sin(ship.rotation) * 30
+            const yBullet = Math.cos(ship.rotation) * 30
+            // console.log(Math.cos(ship.rotation));
+            // console.log(ship.rotation);
+            this.setPosition(x + xBullet, y - yBullet);
 
             this.setActive(true);
             this.setVisible(true);
         },
 
         update: function (time, delta) {
-            this.y -= this.speed * delta;
+            const xBullet = Math.sin(angle)
+            const yBullet = Math.cos(angle)
+            console.log(xBullet);
+            console.log(yBullet);
+            this.y -= (this.speed * delta) * yBullet;
+            this.x += (this.speed * delta) * xBullet;
+            //   console.log(this.y);
+            if (this.y < -30) {
 
-            if (this.y < -50) {
                 this.setActive(false);
                 this.setVisible(false);
             }
@@ -98,7 +110,7 @@ function create() {
 
     bullets = this.add.group({
         classType: Bullet,
-        maxSize: 10,
+        maxSize: 1000000000,
         runChildUpdate: true
     });
     console.log(bullets);
@@ -118,7 +130,6 @@ function update(time, delta) {
     let physics = this.physics
 
     if (keyW.isDown) {
-        console.log(this);
         physics.velocityFromRotation(ship.rotation + 300, 500, ship.body.acceleration);
     }
     else {
@@ -139,17 +150,10 @@ function update(time, delta) {
         var bullet = bullets.get();
 
         if (bullet) {
-
-            const bulletVelocity = this.physics.velocityFromAngle(ship.angle - 90, 1000);
-
-            bullet.fire(ship.x, ship.y, bulletVelocity.x, bulletVelocity.y);
             bullet.rotation = ship.rotation;
-          // Disparar la bala en la dirección que mira el navío
-
-            //esto es lo que falla, bullet.body es null
-            // this.physics.velocityFromRotation(ship.rotation, 400, bullet.body.velocity);
-          bullet.fire(ship.x, ship.y);
-          lastFired = time + 50;
+            // Disparar la bala en la dirección que mira el navío
+            bullet.fire(ship.x, ship.y);
+            lastFired = time + 50;
         }
     }
     this.physics.world.wrap(ship, 32);
