@@ -80,26 +80,23 @@ function create() {
             },
 
         fire: function (x, y) {
-            angle = ship.rotation
+            angle = this.rotation
             const xBullet = Math.sin(ship.rotation) * 30
             const yBullet = Math.cos(ship.rotation) * 30
-            // console.log(Math.cos(ship.rotation));
-            // console.log(ship.rotation);
             this.setPosition(x + xBullet, y - yBullet);
-
             this.setActive(true);
             this.setVisible(true);
-        },
+        }, 
 
         update: function (time, delta) {
+  
             const xBullet = Math.sin(angle)
             const yBullet = Math.cos(angle)
-            console.log(xBullet);
-            console.log(yBullet);
+
             this.y -= (this.speed * delta) * yBullet;
             this.x += (this.speed * delta) * xBullet;
-            //   console.log(this.y);
-            if (this.y < -30) {
+             
+            if (this.y < -30 || this.y > 630 || this.x < -30 || this.x > 830) {
 
                 this.setActive(false);
                 this.setVisible(false);
@@ -110,7 +107,7 @@ function create() {
 
     bullets = this.add.group({
         classType: Bullet,
-        maxSize: 1000000000,
+        maxSize: 1,
         runChildUpdate: true
     });
     console.log(bullets);
@@ -146,15 +143,17 @@ function update(time, delta) {
         ship.setAngularVelocity(0);
     }
 
-    if (cursors.space.isDown && time > lastFired) {
+    if (cursors.space.isDown) {
         var bullet = bullets.get();
 
         if (bullet) {
             bullet.rotation = ship.rotation;
             // Disparar la bala en la dirección que mira el navío
             bullet.fire(ship.x, ship.y);
-            lastFired = time + 50;
         }
+    }
+    else if(cursors.space.isUp){
+        
     }
     this.physics.world.wrap(ship, 32);
 }
