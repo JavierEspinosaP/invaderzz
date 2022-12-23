@@ -20,6 +20,7 @@ var config = {
 };
 
 let bullets;
+let bulletsFired = 0;
 let ship;
 let speed;
 let stats;
@@ -108,13 +109,15 @@ function create() {
                 this.setVisible(false);
             }
 
+
+
         }
 
     });
 
     bullets = this.add.group({
         classType: Bullet,
-        maxSize: 50,
+        maxSize: 10,
         runChildUpdate: true
     });
     console.log(bullets);
@@ -151,13 +154,18 @@ function update(time, delta) {
     }
 
     if (cursors.space.isDown && time > lastFired) {
-        var bullet = bullets.get();
-
-        if (bullet) {
-            bullet.rotation = ship.rotation;
-            // Disparar la bala en la dirección que mira el navío
-            bullet.fire(ship.x, ship.y);
-            lastFired = time + 70;
+        // Comprobar el número de balas disparadas
+        if (bulletsFired < 50) {
+            // Crear una nueva bala y dispararla
+            const bullet = bullets.get();
+            if (bullet) {
+                bullet.fire(ship.x, ship.y);
+                lastFired = time + 100;
+                bulletsFired++; // Incrementar el contador de balas disparadas
+            }
+        } else {
+            // Si se ha disparado el número máximo de balas permitido, deshabilitar el disparo
+            lastFired = time + 100;
         }
     }
     else if (cursors.space.isUp) {
