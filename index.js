@@ -5,6 +5,7 @@ var config = {
     physics: {
         default: 'arcade',
         arcade: {
+            //mio
             fps: 60,
             gravity: { y: 0 }
         }
@@ -51,6 +52,9 @@ function create() {
 
     ship.setDamping(true);
     ship.setDrag(0.3);
+    //nuevo
+    ship.setAngularDrag(400);
+    //
     ship.setMaxVelocity(300);
 
 
@@ -61,58 +65,61 @@ function create() {
     // const rect = this.add.rectangle(x, y, 100, 50, 0xff0000, 1)
 
 
-    // vector to edge of rectangle
-    const vec = this.physics.velocityFromAngle(ship.angle - 90, 50)
-
-    // draw a circle to show the position
-    this.add.circle(ship.x + vec.x, ship.y + vec.y, 10, 0xffffff, 1)
-
     var Bullet = new Phaser.Class({
 
-        Extends: Phaser.GameObjects.Image,
+        Extends: Phaser.Physics.Arcade.Image,
 
         initialize:
 
             function Bullet(scene) {
+                //esto es lo mio
                 Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
-
                 this.speed = Phaser.Math.GetSpeed(600, 1);
+
             },
 
         fire: function (x, y) {
-            angle = this.rotation
-            const xBullet = Math.sin(ship.rotation) * 30
-            const yBullet = Math.cos(ship.rotation) * 30
+
+            // Almacenar la rotación de la nave cuando se dispara la bala
+            this.rotation = ship.rotation;
+
+            // Establecer la posición inicial de la bala y hacerla visible y activa en el juego
+            const xBullet = Math.sin(this.rotation) * 30;
+            const yBullet = Math.cos(this.rotation) * 30;
             this.setPosition(x + xBullet, y - yBullet);
             this.setActive(true);
             this.setVisible(true);
-        }, 
+
+        },
 
         update: function (time, delta) {
-  
-            const xBullet = Math.sin(angle)
-            const yBullet = Math.cos(angle)
 
-            this.y -= (this.speed * delta) * yBullet;
-            this.x += (this.speed * delta) * xBullet;
-             
+            // Calcular la velocidad en el eje x e y a partir de la rotación de la bala y la velocidad deseada
+            const xVelocity = Math.sin(this.rotation) * this.speed;
+            const yVelocity = Math.cos(this.rotation) * this.speed;
+
+            // Actualizar la posición de la bala en función de la velocidad en el eje x e y
+            this.y -= yVelocity * delta;
+            this.x += xVelocity * delta;
+
+            // Ocultar y desactivar la bala si sale de la pantalla
             if (this.y < -30 || this.y > 630 || this.x < -30 || this.x > 830) {
-
                 this.setActive(false);
                 this.setVisible(false);
             }
+
         }
 
     });
 
     bullets = this.add.group({
         classType: Bullet,
-        maxSize: 1,
+        maxSize: 50,
         runChildUpdate: true
     });
     console.log(bullets);
 
-
+    fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
 
 
@@ -143,17 +150,18 @@ function update(time, delta) {
         ship.setAngularVelocity(0);
     }
 
-    if (cursors.space.isDown) {
+    if (cursors.space.isDown && time > lastFired) {
         var bullet = bullets.get();
 
         if (bullet) {
             bullet.rotation = ship.rotation;
             // Disparar la bala en la dirección que mira el navío
             bullet.fire(ship.x, ship.y);
+            lastFired = time + 70;
         }
     }
-    else if(cursors.space.isUp){
-        
+    else if (cursors.space.isUp) {
+
     }
     this.physics.world.wrap(ship, 32);
 }
