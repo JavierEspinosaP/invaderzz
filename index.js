@@ -20,6 +20,10 @@ var config = {
 };
 
 let bullets;
+let totalBullets = 50;
+let level = 1;
+let lives = 3;
+let score = 0;
 let ship;
 let speed;
 let stats;
@@ -30,13 +34,19 @@ let keyS;
 let keyD;
 let keyW;
 let angle
+let bulletCharge;
+let powerups;
+let text
 
-var game = new Phaser.Game(config);
+let game = new Phaser.Game(config);
 
 function preload() {
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
+    this.load.image('bullet_charge', 'assets/bullet_charge.png');
 }
+
+let grd;
 
 function create() {
 
@@ -45,6 +55,21 @@ function create() {
     keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
 
+
+    //  Using the Scene Data Plugin we can store data on a Scene level
+    this.data.set('lives', 3);
+    this.data.set('level', 1);
+    this.data.set('score', 0);
+    this.data.set('Bullets', '0')
+
+    text = this.add.text(50, 50, '', { font: '16px PressStart', fill: '#ffd900' });
+
+    text.setText([
+        'Level: ' + this.data.get('level'),
+        'Lives: ' + this.data.get('lives'),
+        'Score: ' + this.data.get('score'),
+        'Bullets: ' + totalBullets
+    ]);
 
 
 
@@ -63,6 +88,44 @@ function create() {
 
     // // red rectangle
     // const rect = this.add.rectangle(x, y, 100, 50, 0xff0000, 1)
+
+    bulletCharge = this.physics.add.sprite(200, 0, 'bullet_charge');
+
+    bulletCharge.setScale(0.4);
+
+    powerups = this.physics.add.group();
+    powerups.add(bulletCharge, ship);
+
+    this.physics.add.overlap(ship, bulletCharge, function () {
+        bulletCharge.destroy();
+        // aumenta en 10 el contador de balas
+        totalBullets += 10;
+        // actualiza el contador de balas en la pantalla
+        text.setText([
+            'Level: ' + level,
+            'Lives: ' + lives,
+            'Score: ' + score,
+            'Bullets: ' + totalBullets
+        ]);
+    });
+
+    // this.physics.add.collider(ship, bulletCharge, function () {
+    //     // aquí puedes escribir el código que se ejecutará cuando la nave y el powerup colisionen
+    //     // bulletCharge.destroy();  // destruye el sprite del powerup
+    //     // aumenta en 10 el contador de balas
+    //     totalBullets += 10;
+    //     // actualiza el contador de balas en la pantalla
+    //     text.setText([
+    //         'Level: ' + level,
+    //         'Lives: ' + lives,
+    //         'Score: ' + score,
+    //         'Bullets: ' + totalBullets
+    //     ]);
+
+
+    // });
+
+
 
 
     var Bullet = new Phaser.Class({
@@ -90,6 +153,7 @@ function create() {
             this.setActive(true);
             this.setVisible(true);
 
+
         },
 
         update: function (time, delta) {
@@ -108,13 +172,20 @@ function create() {
                 this.setVisible(false);
             }
 
+            text.setText([
+                'Level: ' + level,
+                'Lives: ' + lives,
+                'Score: ' + score,
+                'Bullets: ' + totalBullets
+            ]);
+
         }
 
     });
 
     bullets = this.add.group({
         classType: Bullet,
-        maxSize: 50,
+        maxSize: 10,
         runChildUpdate: true
     });
     console.log(bullets);
@@ -130,6 +201,34 @@ function create() {
 }
 
 function update(time, delta) {
+
+    // comprueba si el sprite 'bulletCharge' ha sido creado
+    if (bulletCharge) {
+        // actualiza la posición del sprite
+        bulletCharge.y += 2; // mueve el sprite 10 pixels hacia abajo en cada frame
+        // si el sprite se sale de la pantalla, destrúyelo
+        if (bulletCharge.y > this.scale.height) {
+            bulletCharge.destroy();
+            bulletCharge = null; // establece la variable en null para indicar que ya no existe
+        }
+    }
+    else {
+        // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
+        bulletCharge = this.physics.add.sprite(Phaser.Math.Between( 30, this.scale.width - 30), 0, 'bullet_charge');
+        bulletCharge.setScale(0.4);
+        this.physics.add.overlap(ship, bulletCharge, function () {
+            bulletCharge.destroy();
+            // aumenta en 10 el contador de balas
+            totalBullets += 10;
+            // actualiza el contador de balas en la pantalla
+            text.setText([
+                'Level: ' + level,
+                'Lives: ' + lives,
+                'Score: ' + score,
+                'Bullets: ' + totalBullets
+            ]);
+        });
+    }
 
     let physics = this.physics
 
@@ -151,13 +250,18 @@ function update(time, delta) {
     }
 
     if (cursors.space.isDown && time > lastFired) {
-        var bullet = bullets.get();
-
-        if (bullet) {
-            bullet.rotation = ship.rotation;
-            // Disparar la bala en la dirección que mira el navío
-            bullet.fire(ship.x, ship.y);
-            lastFired = time + 70;
+        // Comprobar el número de balas disparadas
+        if (totalBullets > 0) {
+            // Crear una nueva bala y dispararla
+            const bullet = bullets.get();
+            if (bullet) {
+                bullet.fire(ship.x, ship.y);
+                lastFired = time + 100;
+                totalBullets--; // Incrementar el contador de balas disparadas
+            }
+        } else {
+            // Si se ha disparado el número máximo de balas permitido, deshabilitar el disparo
+            lastFired = time + 100;
         }
     }
     else if (cursors.space.isUp) {
