@@ -20,7 +20,7 @@ var config = {
 };
 
 let bullets;
-let bulletsFired = 0;
+let totalBullets = 50;
 let ship;
 let speed;
 let stats;
@@ -32,12 +32,16 @@ let keyD;
 let keyW;
 let angle
 
-var game = new Phaser.Game(config);
+let game = new Phaser.Game(config);
 
 function preload() {
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
+    this.load.image('bullet_charge', 'assets/bullet_charge.png');
 }
+
+let text = null;
+let grd;
 
 function create() {
 
@@ -46,6 +50,21 @@ function create() {
     keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
 
+
+    //  Using the Scene Data Plugin we can store data on a Scene level
+    this.data.set('lives', 3);
+    this.data.set('level', 5);
+    this.data.set('score', 2000);
+    this.data.set('Bullets', '0')
+
+    let text = this.add.text(50, 50, '', { font: '16px PressStart', fill: '#ffd900' });
+
+    text.setText([
+        'Level: ' + this.data.get('level'),
+        'Lives: ' + this.data.get('lives'),
+        'Score: ' + this.data.get('score'),
+        'Bullets: ' + totalBullets
+    ]);
 
 
 
@@ -64,6 +83,24 @@ function create() {
 
     // // red rectangle
     // const rect = this.add.rectangle(x, y, 100, 50, 0xff0000, 1)
+
+    const bulletCharge = this.physics.add.sprite(200, 200, 'bullet_charge');
+
+    const powerups = this.physics.add.group();
+    powerups.add(bulletCharge, ship);
+
+    this.physics.add.collider(ship, bulletCharge, function () {
+        // aquí puedes escribir el código que se ejecutará cuando la nave y el powerup colisionen
+        bulletCharge.destroy();  // destruye el sprite del powerup
+        // aumenta en 10 el contador de balas
+        totalBullets += 10;
+        // actualiza el contador de balas en la pantalla
+        text.setText([
+            'Bullets: ' + totalBullets
+        ]);
+
+
+    });
 
 
     var Bullet = new Phaser.Class({
@@ -91,6 +128,7 @@ function create() {
             this.setActive(true);
             this.setVisible(true);
 
+
         },
 
         update: function (time, delta) {
@@ -109,7 +147,9 @@ function create() {
                 this.setVisible(false);
             }
 
-
+            text.setText([
+                'Bullets: ' + totalBullets
+            ]);
 
         }
 
@@ -155,13 +195,13 @@ function update(time, delta) {
 
     if (cursors.space.isDown && time > lastFired) {
         // Comprobar el número de balas disparadas
-        if (bulletsFired < 50) {
+        if (totalBullets > 0) {
             // Crear una nueva bala y dispararla
             const bullet = bullets.get();
             if (bullet) {
                 bullet.fire(ship.x, ship.y);
                 lastFired = time + 100;
-                bulletsFired++; // Incrementar el contador de balas disparadas
+                totalBullets--; // Incrementar el contador de balas disparadas
             }
         } else {
             // Si se ha disparado el número máximo de balas permitido, deshabilitar el disparo
