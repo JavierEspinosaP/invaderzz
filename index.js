@@ -21,6 +21,9 @@ var config = {
 
 let bullets;
 let totalBullets = 50;
+let level = 1;
+let lives = 3;
+let score = 0;
 let ship;
 let speed;
 let stats;
@@ -31,6 +34,9 @@ let keyS;
 let keyD;
 let keyW;
 let angle
+let bulletCharge;
+let powerups;
+let text
 
 let game = new Phaser.Game(config);
 
@@ -40,7 +46,6 @@ function preload() {
     this.load.image('bullet_charge', 'assets/bullet_charge.png');
 }
 
-let text = null;
 let grd;
 
 function create() {
@@ -53,11 +58,11 @@ function create() {
 
     //  Using the Scene Data Plugin we can store data on a Scene level
     this.data.set('lives', 3);
-    this.data.set('level', 5);
-    this.data.set('score', 2000);
+    this.data.set('level', 1);
+    this.data.set('score', 0);
     this.data.set('Bullets', '0')
 
-    let text = this.add.text(50, 50, '', { font: '16px PressStart', fill: '#ffd900' });
+    text = this.add.text(50, 50, '', { font: '16px PressStart', fill: '#ffd900' });
 
     text.setText([
         'Level: ' + this.data.get('level'),
@@ -84,23 +89,43 @@ function create() {
     // // red rectangle
     // const rect = this.add.rectangle(x, y, 100, 50, 0xff0000, 1)
 
-    const bulletCharge = this.physics.add.sprite(200, 200, 'bullet_charge');
+    bulletCharge = this.physics.add.sprite(200, 0, 'bullet_charge');
 
-    const powerups = this.physics.add.group();
+    bulletCharge.setScale(0.4);
+
+    powerups = this.physics.add.group();
     powerups.add(bulletCharge, ship);
 
-    this.physics.add.collider(ship, bulletCharge, function () {
-        // aquí puedes escribir el código que se ejecutará cuando la nave y el powerup colisionen
-        bulletCharge.destroy();  // destruye el sprite del powerup
+    this.physics.add.overlap(ship, bulletCharge, function () {
+        bulletCharge.destroy();
         // aumenta en 10 el contador de balas
         totalBullets += 10;
         // actualiza el contador de balas en la pantalla
         text.setText([
+            'Level: ' + level,
+            'Lives: ' + lives,
+            'Score: ' + score,
             'Bullets: ' + totalBullets
         ]);
-
-
     });
+
+    // this.physics.add.collider(ship, bulletCharge, function () {
+    //     // aquí puedes escribir el código que se ejecutará cuando la nave y el powerup colisionen
+    //     // bulletCharge.destroy();  // destruye el sprite del powerup
+    //     // aumenta en 10 el contador de balas
+    //     totalBullets += 10;
+    //     // actualiza el contador de balas en la pantalla
+    //     text.setText([
+    //         'Level: ' + level,
+    //         'Lives: ' + lives,
+    //         'Score: ' + score,
+    //         'Bullets: ' + totalBullets
+    //     ]);
+
+
+    // });
+
+
 
 
     var Bullet = new Phaser.Class({
@@ -148,6 +173,9 @@ function create() {
             }
 
             text.setText([
+                'Level: ' + level,
+                'Lives: ' + lives,
+                'Score: ' + score,
                 'Bullets: ' + totalBullets
             ]);
 
@@ -173,6 +201,34 @@ function create() {
 }
 
 function update(time, delta) {
+
+    // comprueba si el sprite 'bulletCharge' ha sido creado
+    if (bulletCharge) {
+        // actualiza la posición del sprite
+        bulletCharge.y += 2; // mueve el sprite 10 pixels hacia abajo en cada frame
+        // si el sprite se sale de la pantalla, destrúyelo
+        if (bulletCharge.y > this.scale.height) {
+            bulletCharge.destroy();
+            bulletCharge = null; // establece la variable en null para indicar que ya no existe
+        }
+    }
+    else {
+        // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
+        bulletCharge = this.physics.add.sprite(Phaser.Math.Between( 30, this.scale.width - 30), 0, 'bullet_charge');
+        bulletCharge.setScale(0.4);
+        this.physics.add.overlap(ship, bulletCharge, function () {
+            bulletCharge.destroy();
+            // aumenta en 10 el contador de balas
+            totalBullets += 10;
+            // actualiza el contador de balas en la pantalla
+            text.setText([
+                'Level: ' + level,
+                'Lives: ' + lives,
+                'Score: ' + score,
+                'Bullets: ' + totalBullets
+            ]);
+        });
+    }
 
     let physics = this.physics
 
