@@ -37,6 +37,7 @@ let angle
 let bulletCharge;
 let powerups;
 let text
+let emitter
 
 let game = new Phaser.Game(config);
 
@@ -44,11 +45,13 @@ function preload() {
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('bullet_charge', 'assets/bullet_charge.png');
+    this.load.atlas('space', 'assets/space.png', 'assets/space.json');
 }
 
 let grd;
 
 function create() {
+
 
     keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -82,12 +85,8 @@ function create() {
     //
     ship.setMaxVelocity(300);
 
+    ship.setDepth(15);
 
-    const x = this.scale.width * 0.5
-    const y = this.scale.height * 0.5
-
-    // // red rectangle
-    // const rect = this.add.rectangle(x, y, 100, 50, 0xff0000, 1)
 
     bulletCharge = this.physics.add.sprite(200, 0, 'bullet_charge');
 
@@ -107,25 +106,35 @@ function create() {
             'Score: ' + score,
             'Bullets: ' + totalBullets
         ]);
+    })
+
+    var particles = this.add.particles('space');
+
+    emitter = particles.createEmitter({
+        frame: 'blue',
+        speed: 100,
+        lifespan: {
+            onEmit: function (particle, key, t, value) {
+                return Phaser.Math.Percent(ship.body.speed, 0, 300) * 500;
+            }
+        },
+        alpha: {
+            onEmit: function (particle, key, t, value) {
+                return Phaser.Math.Percent(ship.body.speed, 0, 1000);
+            }
+        },
+        // Añado la posición de la nave como la posición de emisión
+        x: ship.x,
+        y: ship.y,
+        angle: {
+            onEmit: function (particle, key, t, value) {
+                var v = Phaser.Math.Between(-10, 10);
+                return (ship.angle - 180) + v;
+            }
+        },
+        scale: { start: 0.6, end: 0 },
+        blendMode: 'ADD'
     });
-
-    // this.physics.add.collider(ship, bulletCharge, function () {
-    //     // aquí puedes escribir el código que se ejecutará cuando la nave y el powerup colisionen
-    //     // bulletCharge.destroy();  // destruye el sprite del powerup
-    //     // aumenta en 10 el contador de balas
-    //     totalBullets += 10;
-    //     // actualiza el contador de balas en la pantalla
-    //     text.setText([
-    //         'Level: ' + level,
-    //         'Lives: ' + lives,
-    //         'Score: ' + score,
-    //         'Bullets: ' + totalBullets
-    //     ]);
-
-
-    // });
-
-
 
 
     var Bullet = new Phaser.Class({
@@ -172,6 +181,7 @@ function create() {
                 this.setVisible(false);
             }
 
+
             text.setText([
                 'Level: ' + level,
                 'Lives: ' + lives,
@@ -202,6 +212,8 @@ function create() {
 
 function update(time, delta) {
 
+
+
     // comprueba si el sprite 'bulletCharge' ha sido creado
     if (bulletCharge) {
         // actualiza la posición del sprite
@@ -214,7 +226,7 @@ function update(time, delta) {
     }
     else {
         // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
-        bulletCharge = this.physics.add.sprite(Phaser.Math.Between( 30, this.scale.width - 30), 0, 'bullet_charge');
+        bulletCharge = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'bullet_charge');
         bulletCharge.setScale(0.4);
         this.physics.add.overlap(ship, bulletCharge, function () {
             bulletCharge.destroy();
@@ -229,6 +241,10 @@ function update(time, delta) {
             ]);
         });
     }
+
+
+    // Actualizo la posición de emisión en cada frame
+    emitter.setPosition(ship.x, ship.y);
 
     let physics = this.physics
 
