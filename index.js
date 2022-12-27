@@ -38,6 +38,9 @@ let bulletCharge;
 let powerups;
 let text
 let emitter
+let bg
+let stars
+let asteroid1
 
 let game = new Phaser.Game(config);
 
@@ -45,12 +48,20 @@ function preload() {
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('bullet_charge', 'assets/bullet_charge.png');
+    this.load.image('background', 'assets/nebula.jpg');
     this.load.atlas('space', 'assets/space.png', 'assets/space.json');
+    this.load.image('stars', 'assets/stars.png');
+    this.load.image('asteroid1', 'assets/asteroid1.gif');
 }
+
 
 let grd;
 
 function create() {
+
+    bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
+    stars = this.add.tileSprite(400, 300, 800, 600, 'stars').setScrollFactor(0);
+    this.add.image(-730, 480, 'space', 'blue-planet').setOrigin(0).setScrollFactor(0.6).setScale(2)
 
 
     keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -86,7 +97,6 @@ function create() {
     ship.setMaxVelocity(300);
 
     ship.setDepth(15);
-
 
     bulletCharge = this.physics.add.sprite(200, 0, 'bullet_charge');
 
@@ -212,6 +222,21 @@ function create() {
 
 function update(time, delta) {
 
+    // if (asteroid1) {
+    //     // actualiza la posición del sprite
+    //     asteroid1.y += 2; // mueve el sprite 10 pixels hacia abajo en cada frame
+    //     // si el sprite se sale de la pantalla, destrúyelo
+    //     if (asteroid1.y > this.scale.height) {
+    //         asteroid1.destroy();
+    //         asteroid1 = null; // establece la variable en null para indicar que ya no existe
+    //     }
+    // }
+
+    // else {
+    //     // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
+    //     asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1');
+    // }
+
 
 
     // comprueba si el sprite 'bulletCharge' ha sido creado
@@ -280,8 +305,8 @@ function update(time, delta) {
             lastFired = time + 100;
         }
     }
-    else if (cursors.space.isUp) {
 
-    }
+    bg.tilePositionY += 0.2
+    stars.tilePositionY += 0.4
     this.physics.world.wrap(ship, 32);
 }
