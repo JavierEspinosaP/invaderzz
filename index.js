@@ -38,9 +38,11 @@ let bulletCharge;
 let powerups;
 let text
 let emitter
+let emitter2
 let bg
 let stars
 let asteroid1
+let gravity = 0
 
 let game = new Phaser.Game(config);
 
@@ -170,6 +172,7 @@ function create() {
 
     var particles = this.add.particles('space');
 
+
     emitter = particles.createEmitter({
         frame: 'blue',
         speed: 100,
@@ -195,6 +198,36 @@ function create() {
         scale: { start: 0.6, end: 0 },
         blendMode: 'ADD'
     });
+
+
+
+    emitter2 = particles.createEmitter({
+        frame: 'yellow',
+        speed: 600,
+        lifespan: {
+            onEmit: function (particle, key, t, value) {
+                return Phaser.Math.Percent(100, 0, 300) * 500;
+            }
+        },
+        alpha: {
+            onEmit: function (particle, key, t, value) {
+                return Phaser.Math.Percent(100, 0, 1000);
+            }
+        },
+        // Añado la posición de la nave como la posición de emisión
+        x: asteroid1.x,
+        y: asteroid1.y,
+        angle: {
+            onEmit: function (particle, key, t, value) {
+                var v = Phaser.Math.Between(-10, 10);
+                return (-90) + v;
+            }
+        },
+        scale: { start: 1, end: 0 },
+        blendMode: 'ADD'
+    });
+
+
 
 
     var Bullet = new Phaser.Class({
@@ -286,17 +319,22 @@ function update(time, delta) {
     //     // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
     //     asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1');
     // }
+    gravity = time / 100000
+
 
     if (asteroid1) {
         // actualiza la posición del sprite
-        asteroid1.y += 1; // mueve el sprite 10 pixels hacia abajo en cada frame
+        asteroid1.y += (1 * (gravity + 0.3) * ((asteroid1.y / 15) + 21)) / 30 // mueve el sprite 10 pixels hacia abajo en cada frame
         // si el sprite se sale de la pantalla, destrúyelo
+        emitter2.setLifespan(asteroid1.y/2)
+        emitter2.setAlpha((asteroid1.y / 3000));
         if (asteroid1.y > this.scale.height) {
             asteroid1.destroy();
             asteroid1 = null; // establece la variable en null para indicar que ya no existe
         }
+
     }
-    else{
+    else {
         this.anims.create({
             key: 'asteroid1_animation',
             frames: [
@@ -323,7 +361,7 @@ function update(time, delta) {
             frameRate: 16,
             repeat: -1
         });
-    
+
         asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1')
             .play('asteroid1_animation').setScale(0.2)
     }
@@ -361,6 +399,12 @@ function update(time, delta) {
 
     // Actualizo la posición de emisión en cada frame
     emitter.setPosition(ship.x, ship.y);
+
+    if (asteroid1) {
+        emitter2.setPosition(asteroid1.x, asteroid1.y)
+    }
+
+
 
     let physics = this.physics
 
