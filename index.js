@@ -51,7 +51,26 @@ function preload() {
     this.load.image('background', 'assets/nebula.jpg');
     this.load.atlas('space', 'assets/space.png', 'assets/space.json');
     this.load.image('stars', 'assets/stars.png');
-    this.load.image('asteroid1', 'assets/asteroid1.gif');
+    this.load.image('asteroid1_0', 'assets/spritesheet_asteroids/asteroid1/frame_00_delay-0.1s.png');
+    this.load.image('asteroid1_1', 'assets/spritesheet_asteroids/asteroid1/frame_01_delay-0.1s.png');
+    this.load.image('asteroid1_2', 'assets/spritesheet_asteroids/asteroid1/frame_02_delay-0.1s.png');
+    this.load.image('asteroid1_3', 'assets/spritesheet_asteroids/asteroid1/frame_03_delay-0.1s.png');
+    this.load.image('asteroid1_4', 'assets/spritesheet_asteroids/asteroid1/frame_04_delay-0.1s.png');
+    this.load.image('asteroid1_5', 'assets/spritesheet_asteroids/asteroid1/frame_05_delay-0.1s.png');
+    this.load.image('asteroid1_6', 'assets/spritesheet_asteroids/asteroid1/frame_06_delay-0.1s.png');
+    this.load.image('asteroid1_7', 'assets/spritesheet_asteroids/asteroid1/frame_07_delay-0.1s.png');
+    this.load.image('asteroid1_8', 'assets/spritesheet_asteroids/asteroid1/frame_08_delay-0.1s.png');
+    this.load.image('asteroid1_9', 'assets/spritesheet_asteroids/asteroid1/frame_09_delay-0.1s.png');
+    this.load.image('asteroid1_10', 'assets/spritesheet_asteroids/asteroid1/frame_10_delay-0.1s.png');
+    this.load.image('asteroid1_11', 'assets/spritesheet_asteroids/asteroid1/frame_11_delay-0.1s.png');
+    this.load.image('asteroid1_12', 'assets/spritesheet_asteroids/asteroid1/frame_12_delay-0.1s.png');
+    this.load.image('asteroid1_13', 'assets/spritesheet_asteroids/asteroid1/frame_13_delay-0.1s.png');
+    this.load.image('asteroid1_14', 'assets/spritesheet_asteroids/asteroid1/frame_14_delay-0.1s.png');
+    this.load.image('asteroid1_15', 'assets/spritesheet_asteroids/asteroid1/frame_15_delay-0.1s.png');
+    this.load.image('asteroid1_16', 'assets/spritesheet_asteroids/asteroid1/frame_16_delay-0.1s.png');
+    this.load.image('asteroid1_17', 'assets/spritesheet_asteroids/asteroid1/frame_17_delay-0.1s.png');
+    this.load.image('asteroid1_18', 'assets/spritesheet_asteroids/asteroid1/frame_18_delay-0.1s.png');
+
 }
 
 
@@ -62,6 +81,36 @@ function create() {
     bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
     stars = this.add.tileSprite(400, 300, 800, 600, 'stars').setScrollFactor(0);
     this.add.image(-730, 480, 'space', 'blue-planet').setOrigin(0).setScrollFactor(0.6).setScale(2)
+
+    this.anims.create({
+        key: 'asteroid1_animation',
+        frames: [
+            { key: 'asteroid1_0' },
+            { key: 'asteroid1_1' },
+            { key: 'asteroid1_2' },
+            { key: 'asteroid1_3' },
+            { key: 'asteroid1_4' },
+            { key: 'asteroid1_5' },
+            { key: 'asteroid1_6' },
+            { key: 'asteroid1_7' },
+            { key: 'asteroid1_8' },
+            { key: 'asteroid1_9' },
+            { key: 'asteroid1_10' },
+            { key: 'asteroid1_11' },
+            { key: 'asteroid1_12' },
+            { key: 'asteroid1_13' },
+            { key: 'asteroid1_14' },
+            { key: 'asteroid1_15' },
+            { key: 'asteroid1_16' },
+            { key: 'asteroid1_17' },
+            { key: 'asteroid1_18' },
+        ],
+        frameRate: 16,
+        repeat: -1
+    });
+
+    asteroid1 = this.physics.add.sprite(300, -20, 'asteroid1')
+        .play('asteroid1_animation').setScale(0.2)
 
 
     keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -88,6 +137,7 @@ function create() {
 
 
     ship = this.physics.add.image(400, 300, 'ship');
+
 
     ship.setDamping(true);
     ship.setDrag(0.3);
@@ -236,6 +286,47 @@ function update(time, delta) {
     //     // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
     //     asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1');
     // }
+
+    if (asteroid1) {
+        // actualiza la posición del sprite
+        asteroid1.y += 1; // mueve el sprite 10 pixels hacia abajo en cada frame
+        // si el sprite se sale de la pantalla, destrúyelo
+        if (asteroid1.y > this.scale.height) {
+            asteroid1.destroy();
+            asteroid1 = null; // establece la variable en null para indicar que ya no existe
+        }
+    }
+    else{
+        this.anims.create({
+            key: 'asteroid1_animation',
+            frames: [
+                { key: 'asteroid1_0' },
+                { key: 'asteroid1_1' },
+                { key: 'asteroid1_2' },
+                { key: 'asteroid1_3' },
+                { key: 'asteroid1_4' },
+                { key: 'asteroid1_5' },
+                { key: 'asteroid1_6' },
+                { key: 'asteroid1_7' },
+                { key: 'asteroid1_8' },
+                { key: 'asteroid1_9' },
+                { key: 'asteroid1_10' },
+                { key: 'asteroid1_11' },
+                { key: 'asteroid1_12' },
+                { key: 'asteroid1_13' },
+                { key: 'asteroid1_14' },
+                { key: 'asteroid1_15' },
+                { key: 'asteroid1_16' },
+                { key: 'asteroid1_17' },
+                { key: 'asteroid1_18' },
+            ],
+            frameRate: 16,
+            repeat: -1
+        });
+    
+        asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1')
+            .play('asteroid1_animation').setScale(0.2)
+    }
 
 
 
