@@ -42,6 +42,7 @@ let emitter2
 let bg
 let stars
 let asteroid1
+let explosion1
 let gravity = 0
 
 let game = new Phaser.Game(config);
@@ -72,6 +73,31 @@ function preload() {
     this.load.image('asteroid1_16', 'assets/spritesheet_asteroids/asteroid1/frame_16_delay-0.1s.png');
     this.load.image('asteroid1_17', 'assets/spritesheet_asteroids/asteroid1/frame_17_delay-0.1s.png');
     this.load.image('asteroid1_18', 'assets/spritesheet_asteroids/asteroid1/frame_18_delay-0.1s.png');
+    this.load.image('explosion1', 'assets/explosions/explosion1/explosion1 (1).png');
+    this.load.image('explosion2', 'assets/explosions/explosion1/explosion1 (2).png');
+    this.load.image('explosion3', 'assets/explosions/explosion1/explosion1 (3).png');
+    this.load.image('explosion4', 'assets/explosions/explosion1/explosion1 (4).png');
+    this.load.image('explosion5', 'assets/explosions/explosion1/explosion1 (5).png');
+    this.load.image('explosion6', 'assets/explosions/explosion1/explosion1 (6).png');
+    this.load.image('explosion7', 'assets/explosions/explosion1/explosion1 (7).png');
+    this.load.image('explosion8', 'assets/explosions/explosion1/explosion1 (8).png');
+    this.load.image('explosion9', 'assets/explosions/explosion1/explosion1 (9).png');
+    this.load.image('explosion10', 'assets/explosions/explosion1/explosion1 (10).png');
+    this.load.image('explosion11', 'assets/explosions/explosion1/explosion1 (11).png');
+    this.load.image('explosion12', 'assets/explosions/explosion1/explosion1 (12).png');
+    this.load.image('explosion13', 'assets/explosions/explosion1/explosion1 (13).png');
+    this.load.image('explosion14', 'assets/explosions/explosion1/explosion1 (14).png');
+    this.load.image('explosion15', 'assets/explosions/explosion1/explosion1 (15).png');
+    this.load.image('explosion16', 'assets/explosions/explosion1/explosion1 (16).png');
+    this.load.image('explosion17', 'assets/explosions/explosion1/explosion1 (17).png');
+    this.load.image('explosion18', 'assets/explosions/explosion1/explosion1 (18).png');
+    this.load.image('explosion19', 'assets/explosions/explosion1/explosion1 (19).png');
+    this.load.image('explosion20', 'assets/explosions/explosion1/explosion1 (20).png');
+    this.load.image('explosion21', 'assets/explosions/explosion1/explosion1 (21).png');
+    this.load.image('explosion22', 'assets/explosions/explosion1/explosion1 (22).png');
+    this.load.image('explosion23', 'assets/explosions/explosion1/explosion1 (23).png');
+    this.load.image('explosion24', 'assets/explosions/explosion1/explosion1 (24).png');
+
 
 }
 
@@ -113,6 +139,43 @@ function create() {
 
     asteroid1 = this.physics.add.sprite(300, -20, 'asteroid1')
         .play('asteroid1_animation').setScale(0.2)
+
+
+    this.anims.create({
+        key: 'explosion1_animation',
+        frames: [
+            { key: 'explosion1' },
+            { key: 'explosion2' },
+            { key: 'explosion3' },
+            { key: 'explosion4' },
+            { key: 'explosion5' },
+            { key: 'explosion6' },
+            { key: 'explosion7' },
+            { key: 'explosion8' },
+            { key: 'explosion9' },
+            { key: 'explosion10' },
+            { key: 'explosion11' },
+            { key: 'explosion12' },
+            { key: 'explosion13' },
+            { key: 'explosion14' },
+            { key: 'explosion15' },
+            { key: 'explosion16' },
+            { key: 'explosion17' },
+            { key: 'explosion18' },
+            { key: 'explosion19' },
+            { key: 'explosion20' },
+            { key: 'explosion21' },
+            { key: 'explosion22' },
+            { key: 'explosion23' },
+            { key: 'explosion24' },
+        ],
+        frameRate: 16,
+        repeat: 0
+    });
+
+
+
+
 
 
     keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -305,20 +368,6 @@ function create() {
 
 function update(time, delta) {
 
-    // if (asteroid1) {
-    //     // actualiza la posición del sprite
-    //     asteroid1.y += 2; // mueve el sprite 10 pixels hacia abajo en cada frame
-    //     // si el sprite se sale de la pantalla, destrúyelo
-    //     if (asteroid1.y > this.scale.height) {
-    //         asteroid1.destroy();
-    //         asteroid1 = null; // establece la variable en null para indicar que ya no existe
-    //     }
-    // }
-
-    // else {
-    //     // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
-    //     asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1');
-    // }
     gravity = time / 100000
 
 
@@ -326,9 +375,49 @@ function update(time, delta) {
         // actualiza la posición del sprite
         asteroid1.y += (1 * (gravity + 0.3) * ((asteroid1.y / 15) + 21)) / 30 // mueve el sprite 10 pixels hacia abajo en cada frame
         // si el sprite se sale de la pantalla, destrúyelo
-        emitter2.setLifespan(asteroid1.y/2)
+        emitter2.setLifespan(asteroid1.y / 2)
         emitter2.setAlpha((asteroid1.y / 3000));
+
+
         if (asteroid1.y > this.scale.height) {
+            this.anims.create({
+                key: 'explosion1_animation',
+                frames: [
+                    { key: 'explosion1' },
+                    { key: 'explosion2' },
+                    { key: 'explosion3' },
+                    { key: 'explosion4' },
+                    { key: 'explosion5' },
+                    { key: 'explosion6' },
+                    { key: 'explosion7' },
+                    { key: 'explosion8' },
+                    { key: 'explosion9' },
+                    { key: 'explosion10' },
+                    { key: 'explosion11' },
+                    { key: 'explosion12' },
+                    { key: 'explosion13' },
+                    { key: 'explosion14' },
+                    { key: 'explosion15' },
+                    { key: 'explosion16' },
+                    { key: 'explosion17' },
+                    { key: 'explosion18' },
+                    { key: 'explosion19' },
+                    { key: 'explosion20' },
+                    { key: 'explosion21' },
+                    { key: 'explosion22' },
+                    { key: 'explosion23' },
+                    { key: 'explosion24' },
+                ],
+                frameRate: 16,
+                repeat: 0
+            });
+            explosion1 = this.physics.add.sprite(asteroid1.x, 550, 'explosion1')
+            .play('explosion1_animation').setScale(0.5)
+            setTimeout(function () {
+                explosion1.destroy();
+                explosion1 = null;
+            }, 1500);
+
             asteroid1.destroy();
             asteroid1 = null; // establece la variable en null para indicar que ya no existe
         }
@@ -364,7 +453,11 @@ function update(time, delta) {
 
         asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1')
             .play('asteroid1_animation').setScale(0.2)
+
+
     }
+
+
 
 
 
