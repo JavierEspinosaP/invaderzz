@@ -1,3 +1,20 @@
+let startConfig = {
+    key: 'start',
+    active: true,
+    preload: startLoader,
+    create: startCreate 
+}
+
+var demoSceneConfig = {
+    key: 'GameScene',
+    active: false,
+    visible: false,
+    preload: preload,
+    create: create, 
+    update: update
+};
+
+
 var config = {
     type: Phaser.WEBGL,
     width: 800,
@@ -12,17 +29,14 @@ var config = {
     },
     backgroundColor: '#2d2d2d',
     parent: 'phaser-example',
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
+    scene: [startConfig, demoSceneConfig]
 };
+
 
 let bullets;
 let totalBullets = 50;
 let level = 1;
-let lives = 3;
+let lives = 90;
 let score = 0;
 let ship;
 let speed;
@@ -44,8 +58,32 @@ let stars
 let asteroid1
 let explosion1
 let gravity = 0
+let gamePaused = false;
+let hits = 0;
+
+function togglePause() {
+    gamePaused = !gamePaused;
+    if (gamePaused) {
+      game.pause();
+    } else {
+      game.resume();
+    }
+  }
 
 let game = new Phaser.Game(config);
+
+
+function startLoader() {
+    this.load.image('start', 'assets/start.png');
+}
+
+function startCreate() {
+    //añadir la imagen de 'start' y escalarla
+    this.add.image(400, 300, 'start').setScale(0.2);
+    this.input.on('pointerdown', function (pointer) {
+        this.scene.start('GameScene');
+    }, this);
+}
 
 function preload() {
     this.load.image('ship', 'assets/player.png');
@@ -97,6 +135,18 @@ function preload() {
     this.load.image('explosion22', 'assets/explosions/explosion1/explosion1 (22).png');
     this.load.image('explosion23', 'assets/explosions/explosion1/explosion1 (23).png');
     this.load.image('explosion24', 'assets/explosions/explosion1/explosion1 (24).png');
+
+    this.load.image('explosion2_1', 'assets/explosions/explosion2/explosion2 (1).png');
+    this.load.image('explosion2_2', 'assets/explosions/explosion2/explosion2 (2).png');
+    this.load.image('explosion2_3', 'assets/explosions/explosion2/explosion2 (3).png');
+    this.load.image('explosion2_4', 'assets/explosions/explosion2/explosion2 (4).png');
+    this.load.image('explosion2_5', 'assets/explosions/explosion2/explosion2 (5).png');
+    this.load.image('explosion2_6', 'assets/explosions/explosion2/explosion2 (6).png');
+    this.load.image('explosion2_7', 'assets/explosions/explosion2/explosion2 (7).png');
+    this.load.image('explosion2_8', 'assets/explosions/explosion2/explosion2 (8).png');
+    this.load.image('explosion2_9', 'assets/explosions/explosion2/explosion2 (9).png');
+    this.load.image('explosion2_10', 'assets/explosions/explosion2/explosion2 (10).png');
+
 
 
 }
@@ -185,7 +235,7 @@ function create() {
 
 
     //  Using the Scene Data Plugin we can store data on a Scene level
-    this.data.set('lives', 3);
+    this.data.set('lives', lives);
     this.data.set('level', 1);
     this.data.set('score', 0);
     this.data.set('Bullets', '0')
@@ -233,6 +283,8 @@ function create() {
         ]);
     })
 
+
+
     var particles = this.add.particles('space');
 
 
@@ -277,7 +329,6 @@ function create() {
                 return Phaser.Math.Percent(100, 0, 1000);
             }
         },
-        // Añado la posición de la nave como la posición de emisión
         x: asteroid1.x,
         y: asteroid1.y,
         angle: {
@@ -300,7 +351,6 @@ function create() {
         initialize:
 
             function Bullet(scene) {
-                //esto es lo mio
                 Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
                 this.speed = Phaser.Math.GetSpeed(600, 1);
 
@@ -338,6 +388,20 @@ function create() {
             }
 
 
+            else if (Math.abs(this.y - asteroid1.y) < 20 && Math.abs(this.x - asteroid1.x) < 20){
+                this.setActive(false);
+                this.setVisible(false);
+                hits+=1;
+                if (hits == 3) {
+                    asteroid1.destroy();
+                    asteroid1 = null
+                    emitter2.stop();
+                    hits = 0;
+                }
+                console.log(hits)
+            }
+
+
             text.setText([
                 'Level: ' + level,
                 'Lives: ' + lives,
@@ -350,13 +414,28 @@ function create() {
     });
 
     bullets = this.add.group({
+        defaultKey: 'bullet',
         classType: Bullet,
         maxSize: 10,
-        runChildUpdate: true
+        runChildUpdate: true,
+        collideWorldBounds: true
     });
     console.log(bullets);
 
     fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+
+    this.physics.overlap(bullets, asteroid1, function(bullet, asteroid) {
+        // Incrementa la variable `hits` del asteroide en 1
+        hits+=1;
+        console.log(hits);
+        // Si el asteroide ha sido golpeado tres veces, destrúyelo
+        if (hits == 3) {
+            asteroid.destroy();
+            asteroid = null;
+            hits = 0;
+        }
+    }, null, this);
 
 
 
@@ -380,6 +459,8 @@ function update(time, delta) {
 
 
         if (asteroid1.y > this.scale.height) {
+            lives -= 1;
+
             this.anims.create({
                 key: 'explosion1_animation',
                 frames: [
@@ -420,6 +501,16 @@ function update(time, delta) {
 
             asteroid1.destroy();
             asteroid1 = null; // establece la variable en null para indicar que ya no existe
+
+            text.setText([
+                'Level: ' + level,
+                'Lives: ' + lives,
+                'Score: ' + score,
+                'Bullets: ' + totalBullets
+            ]);
+        }
+        if (lives == 0) {
+            this.scene.pause();
         }
 
     }
@@ -521,6 +612,7 @@ function update(time, delta) {
     if (cursors.space.isDown && time > lastFired) {
         // Comprobar el número de balas disparadas
         if (totalBullets > 0) {
+            
             // Crear una nueva bala y dispararla
             const bullet = bullets.get();
             if (bullet) {
