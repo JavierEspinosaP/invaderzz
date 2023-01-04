@@ -2,7 +2,7 @@ let startConfig = {
     key: 'start',
     active: true,
     preload: startLoader,
-    create: startCreate 
+    create: startCreate
 }
 
 var demoSceneConfig = {
@@ -10,7 +10,7 @@ var demoSceneConfig = {
     active: false,
     visible: false,
     preload: preload,
-    create: create, 
+    create: create,
     update: update
 };
 
@@ -57,31 +57,41 @@ let bg
 let stars
 let asteroid1
 let explosion1
+let explosion2
+let explosion3
 let gravity = 0
 let gamePaused = false;
 let hits = 0;
+let differenceHits = 0;
+let startTime = 0
+let asteroidDeathX
+let asteroidDeathY
 
 function togglePause() {
     gamePaused = !gamePaused;
     if (gamePaused) {
-      game.pause();
+        game.pause();
     } else {
-      game.resume();
+        game.resume();
     }
-  }
+}
 
 let game = new Phaser.Game(config);
 
 
 function startLoader() {
+
     this.load.image('start', 'assets/start.png');
+    this.scene.pause();
 }
 
 function startCreate() {
     //añadir la imagen de 'start' y escalarla
     this.add.image(400, 300, 'start').setScale(0.2);
+
     this.input.on('pointerdown', function (pointer) {
         this.scene.start('GameScene');
+        startTime = this.time.now;
     }, this);
 }
 
@@ -148,6 +158,26 @@ function preload() {
     this.load.image('explosion2_10', 'assets/explosions/explosion2/explosion2 (10).png');
 
 
+    this.load.image('explosion3_1', 'assets/explosions/explosion3/explosion3 (1).png');
+    this.load.image('explosion3_2', 'assets/explosions/explosion3/explosion3 (2).png');
+    this.load.image('explosion3_3', 'assets/explosions/explosion3/explosion3 (3).png');
+    this.load.image('explosion3_4', 'assets/explosions/explosion3/explosion3 (4).png');
+    this.load.image('explosion3_5', 'assets/explosions/explosion3/explosion3 (5).png');
+    this.load.image('explosion3_6', 'assets/explosions/explosion3/explosion3 (6).png');
+    this.load.image('explosion3_7', 'assets/explosions/explosion3/explosion3 (7).png');
+    this.load.image('explosion3_8', 'assets/explosions/explosion3/explosion3 (8).png');
+    this.load.image('explosion3_9', 'assets/explosions/explosion3/explosion3 (9).png');
+    this.load.image('explosion3_10', 'assets/explosions/explosion3/explosion3 (10).png');
+    this.load.image('explosion3_11', 'assets/explosions/explosion3/explosion3 (11).png');
+    this.load.image('explosion3_12', 'assets/explosions/explosion3/explosion3 (12).png');
+    this.load.image('explosion3_13', 'assets/explosions/explosion3/explosion3 (13).png');
+    this.load.image('explosion3_14', 'assets/explosions/explosion3/explosion3 (14).png');
+    this.load.image('explosion3_15', 'assets/explosions/explosion3/explosion3 (15).png');
+    this.load.image('explosion3_16', 'assets/explosions/explosion3/explosion3 (16).png');
+    this.load.image('explosion3_17', 'assets/explosions/explosion3/explosion3 (17).png');
+    this.load.image('explosion3_18', 'assets/explosions/explosion3/explosion3 (18).png');
+    this.load.image('explosion3_19', 'assets/explosions/explosion3/explosion3 (19).png');
+
 
 }
 
@@ -156,6 +186,7 @@ let grd;
 
 function create() {
 
+    time = 0;
     bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
     stars = this.add.tileSprite(400, 300, 800, 600, 'stars').setScrollFactor(0);
     this.add.image(-730, 480, 'space', 'blue-planet').setOrigin(0).setScrollFactor(0.6).setScale(2)
@@ -218,6 +249,25 @@ function create() {
             { key: 'explosion22' },
             { key: 'explosion23' },
             { key: 'explosion24' },
+        ],
+        frameRate: 16,
+        repeat: 0
+    });
+
+
+    this.anims.create({
+        key: 'explosion2_animation',
+        frames: [
+            { key: 'explosion2_1' },
+            { key: 'explosion2_2' },
+            { key: 'explosion2_3' },
+            { key: 'explosion2_4' },
+            { key: 'explosion2_5' },
+            { key: 'explosion2_6' },
+            { key: 'explosion2_7' },
+            { key: 'explosion2_8' },
+            { key: 'explosion2_9' },
+            { key: 'explosion2_10' },
         ],
         frameRate: 16,
         repeat: 0
@@ -387,19 +437,24 @@ function create() {
                 this.setVisible(false);
             }
 
+            if (asteroid1) {
+                if (Math.abs(this.y - asteroid1.y) < 20 && Math.abs(this.x - asteroid1.x) < 20) {
+                    this.setActive(false);
+                    this.setVisible(false);
+                    hits += 1;
 
-            else if (Math.abs(this.y - asteroid1.y) < 20 && Math.abs(this.x - asteroid1.x) < 20){
-                this.setActive(false);
-                this.setVisible(false);
-                hits+=1;
-                if (hits == 3) {
-                    asteroid1.destroy();
-                    asteroid1 = null
-                    emitter2.stop();
-                    hits = 0;
+                    if (hits == 3) {
+                        asteroidDeathX = asteroid1.x;
+                        asteroidDeathY = asteroid1.y;
+                        asteroid1.destroy();
+                        asteroid1 = null
+                        emitter2.stop();
+                        hits = 0;
+                        score += 100;
+                    }
                 }
-                console.log(hits)
             }
+
 
 
             text.setText([
@@ -420,19 +475,22 @@ function create() {
         runChildUpdate: true,
         collideWorldBounds: true
     });
-    console.log(bullets);
+
 
     fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
 
-    this.physics.overlap(bullets, asteroid1, function(bullet, asteroid) {
+    this.physics.overlap(bullets, asteroid1, function (bullet, asteroid) {
         // Incrementa la variable `hits` del asteroide en 1
-        hits+=1;
-        console.log(hits);
-        // Si el asteroide ha sido golpeado tres veces, destrúyelo
+        hits += 1;
+
+        // Si el asteroide ha sido golpeado tres veces, destrúyelo pasado un segundo
         if (hits == 3) {
-            asteroid.destroy();
-            asteroid = null;
+            asteroid1.destroy();
+            asteroid1 = null
+            emitter2.stop();
+
+
             hits = 0;
         }
     }, null, this);
@@ -446,8 +504,7 @@ function create() {
 }
 
 function update(time, delta) {
-
-    gravity = time / 100000
+    gravity = (time - startTime) / 100000
 
 
     if (asteroid1) {
@@ -493,7 +550,7 @@ function update(time, delta) {
                 repeat: 0
             });
             explosion1 = this.physics.add.sprite(asteroid1.x, 550, 'explosion1')
-            .play('explosion1_animation').setScale(0.5)
+                .play('explosion1_animation').setScale(0.5)
             setTimeout(function () {
                 explosion1.destroy();
                 explosion1 = null;
@@ -501,7 +558,8 @@ function update(time, delta) {
 
             asteroid1.destroy();
             asteroid1 = null; // establece la variable en null para indicar que ya no existe
-
+            hits = 0;
+            differenceHits = 0;
             text.setText([
                 'Level: ' + level,
                 'Lives: ' + lives,
@@ -515,6 +573,7 @@ function update(time, delta) {
 
     }
     else {
+
         this.anims.create({
             key: 'asteroid1_animation',
             frames: [
@@ -541,16 +600,15 @@ function update(time, delta) {
             frameRate: 16,
             repeat: -1
         });
+        
 
-        asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1')
-            .play('asteroid1_animation').setScale(0.2)
+        asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), -10, 'asteroid1')
+            .play('asteroid1_animation').setScale(0.2)            
+
+
 
 
     }
-
-
-
-
 
     // comprueba si el sprite 'bulletCharge' ha sido creado
     if (bulletCharge) {
@@ -588,6 +646,88 @@ function update(time, delta) {
         emitter2.setPosition(asteroid1.x, asteroid1.y)
     }
 
+    //Si hits se incrementa, se crea una explosion2
+
+
+    if (hits != differenceHits) {
+
+        if (asteroid1) {
+            this.anims.create({
+                key: 'explosion2_animation',
+                frames: [
+                    { key: 'explosion2_1' },
+                    { key: 'explosion2_2' },
+                    { key: 'explosion2_3' },
+                    { key: 'explosion2_4' },
+                    { key: 'explosion2_5' },
+                    { key: 'explosion2_6' },
+                    { key: 'explosion2_7' },
+                    { key: 'explosion2_8' },
+                    { key: 'explosion2_9' },
+                    { key: 'explosion2_10' },
+                ],
+                frameRate: 16,
+                repeat: 0
+            });
+
+            explosion2 = this.physics.add.sprite(asteroid1.x, asteroid1.y, 'explosion2')
+                .play('explosion2_animation').setScale(0.1)
+            setTimeout(function () {
+                if (explosion2) {
+                    explosion2.destroy();
+                    explosion2 = null;
+                }
+            }, 1500);
+
+            differenceHits += 1;
+
+            if (hits == 0) {
+                differenceHits = 0;
+            }
+            console.log(hits);
+
+            if (hits == 0) {
+                this.anims.create({
+                    key: 'explosion3_animation',
+                    frames: [
+                        { key: 'explosion3_1' },
+                        { key: 'explosion3_2' },
+                        { key: 'explosion3_3' },
+                        { key: 'explosion3_4' },
+                        { key: 'explosion3_5' },
+                        { key: 'explosion3_6' },
+                        { key: 'explosion3_7' },
+                        { key: 'explosion3_8' },
+                        { key: 'explosion3_9' },
+                        { key: 'explosion3_10' },
+                        { key: 'explosion3_11' },
+                        { key: 'explosion3_12' },
+                        { key: 'explosion3_13' },
+                        { key: 'explosion3_14' },
+                        { key: 'explosion3_15' },
+                        { key: 'explosion3_16' },
+                        { key: 'explosion3_17' },
+                        { key: 'explosion3_18' },
+                        { key: 'explosion3_19' }
+                    ],
+                    frameRate: 16,
+                    repeat: 0
+                });
+            
+                explosion3 = this.physics.add.sprite(asteroidDeathX, asteroidDeathY , 'explosion3_1')
+                    .play('explosion3_animation').setScale(0.3)
+                    setTimeout(function () {
+                        explosion3.destroy();
+                        explosion3 = null;
+                    }, 1200);
+            }
+        }
+
+    }
+
+
+
+
 
 
     let physics = this.physics
@@ -612,7 +752,7 @@ function update(time, delta) {
     if (cursors.space.isDown && time > lastFired) {
         // Comprobar el número de balas disparadas
         if (totalBullets > 0) {
-            
+
             // Crear una nueva bala y dispararla
             const bullet = bullets.get();
             if (bullet) {
