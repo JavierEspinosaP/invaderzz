@@ -66,6 +66,10 @@ let differenceHits = 0;
 let startTime = 0
 let asteroidDeathX
 let asteroidDeathY
+let backgroundMusic1
+let backgroundMusic2
+let powerUp
+
 
 function togglePause() {
     gamePaused = !gamePaused;
@@ -96,6 +100,14 @@ function startCreate() {
 }
 
 function preload() {
+
+    this.load.plugin('rexsoundfadeplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexsoundfadeplugin.min.js', true);
+
+
+    this.load.audio('backgroundMusic1', 'assets/sounds/background.wav')
+    this.load.audio('backgroundMusic2', 'assets/sounds/background2.wav')
+    this.load.audio('powerUp', 'assets/sounds/powerUp.wav')
+
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('bullet_charge', 'assets/bullet_charge.png');
@@ -185,6 +197,20 @@ function preload() {
 let grd;
 
 function create() {
+
+    backgroundMusic1 = this.sound.add('backgroundMusic1');
+    backgroundMusic2 = this.sound.add('backgroundMusic2');
+    backgroundMusic1.play();
+    backgroundMusic1.setVolume(0.2);
+    // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
+    this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 3000);  
+
+    powerUp = this.sound.add('powerUp');
+    powerUp.play()
+    powerUp.setVolume(0.5);
+    powerUp.setDetune(-1200);    
+    powerUp.setRate(2.0)
+
 
     time = 0;
     bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
@@ -507,6 +533,24 @@ function update(time, delta) {
     gravity = (time - startTime) / 100000
 
 
+    if (Math.round(backgroundMusic1.seek) == 141) {
+        this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic1, 10000);        
+        backgroundMusic2.play();
+        backgroundMusic2.setVolume(0.2);
+        // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
+        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic2, 10000);
+
+    }
+    if (Math.round(backgroundMusic2.seek) == 141) {
+        backgroundMusic1.play();
+        backgroundMusic1.setVolume(0.2);
+        // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
+        this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic2, 10000);
+        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 10000);
+
+    }
+    
+
     if (asteroid1) {
         // actualiza la posición del sprite
         asteroid1.y += (1 * (gravity + 0.3) * ((asteroid1.y / 15) + 21)) / 30 // mueve el sprite 10 pixels hacia abajo en cada frame
@@ -711,7 +755,6 @@ function update(time, delta) {
             if (hits == 0) {
                 differenceHits = 0;
             }
-            console.log(hits);
 
             if (hits == 0) {
                 this.anims.create({
