@@ -558,6 +558,7 @@ function update(time, delta) {
 
             asteroid1.destroy();
             asteroid1 = null; // establece la variable en null para indicar que ya no existe
+            emitter2.stop();
             hits = 0;
             differenceHits = 0;
             text.setText([
@@ -603,9 +604,35 @@ function update(time, delta) {
         
 
         asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), -10, 'asteroid1')
-            .play('asteroid1_animation').setScale(0.2)            
+            .play('asteroid1_animation').setScale(0.2)    
+            
+            
+            let particles = this.add.particles('space');
 
-
+            emitter2 = particles.createEmitter({
+                frame: 'yellow',
+                speed: 600,
+                lifespan: {
+                    onEmit: function (particle, key, t, value) {
+                        return Phaser.Math.Percent(100, 0, 300) * 500;
+                    }
+                },
+                alpha: {
+                    onEmit: function (particle, key, t, value) {
+                        return Phaser.Math.Percent(100, 0, 1000);
+                    }
+                },
+                x: asteroid1.x,
+                y: asteroid1.y,
+                angle: {
+                    onEmit: function (particle, key, t, value) {
+                        var v = Phaser.Math.Between(-10, 10);
+                        return (-90) + v;
+                    }
+                },
+                scale: { start: 1, end: 0 },
+                blendMode: 'ADD'
+            });
 
 
     }
