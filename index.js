@@ -1,3 +1,20 @@
+let startConfig = {
+    key: 'start',
+    active: true,
+    preload: startLoader,
+    create: startCreate
+}
+
+var demoSceneConfig = {
+    key: 'GameScene',
+    active: false,
+    visible: false,
+    preload: preload,
+    create: create,
+    update: update
+};
+
+
 var config = {
     type: Phaser.WEBGL,
     width: 800,
@@ -12,17 +29,14 @@ var config = {
     },
     backgroundColor: '#2d2d2d',
     parent: 'phaser-example',
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
+    scene: [startConfig, demoSceneConfig]
 };
+
 
 let bullets;
 let totalBullets = 50;
 let level = 1;
-let lives = 3;
+let lives = 90;
 let score = 0;
 let ship;
 let speed;
@@ -43,11 +57,57 @@ let bg
 let stars
 let asteroid1
 let explosion1
+let explosion2
+let explosion3
 let gravity = 0
+let gamePaused = false;
+let hits = 0;
+let differenceHits = 0;
+let startTime = 0
+let asteroidDeathX
+let asteroidDeathY
+let backgroundMusic1
+let backgroundMusic2
+let powerUp
+
+
+function togglePause() {
+    gamePaused = !gamePaused;
+    if (gamePaused) {
+        game.pause();
+    } else {
+        game.resume();
+    }
+}
 
 let game = new Phaser.Game(config);
 
+
+function startLoader() {
+
+    this.load.image('start', 'assets/start.png');
+    this.scene.pause();
+}
+
+function startCreate() {
+    //añadir la imagen de 'start' y escalarla
+    this.add.image(400, 300, 'start').setScale(0.2);
+
+    this.input.on('pointerdown', function (pointer) {
+        this.scene.start('GameScene');
+        startTime = this.time.now;
+    }, this);
+}
+
 function preload() {
+
+    this.load.plugin('rexsoundfadeplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexsoundfadeplugin.min.js', true);
+
+
+    this.load.audio('backgroundMusic1', 'assets/sounds/background.wav')
+    this.load.audio('backgroundMusic2', 'assets/sounds/background2.wav')
+    this.load.audio('powerUp', 'assets/sounds/powerUp.wav')
+
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('bullet_charge', 'assets/bullet_charge.png');
@@ -98,6 +158,38 @@ function preload() {
     this.load.image('explosion23', 'assets/explosions/explosion1/explosion1 (23).png');
     this.load.image('explosion24', 'assets/explosions/explosion1/explosion1 (24).png');
 
+    this.load.image('explosion2_1', 'assets/explosions/explosion2/explosion2 (1).png');
+    this.load.image('explosion2_2', 'assets/explosions/explosion2/explosion2 (2).png');
+    this.load.image('explosion2_3', 'assets/explosions/explosion2/explosion2 (3).png');
+    this.load.image('explosion2_4', 'assets/explosions/explosion2/explosion2 (4).png');
+    this.load.image('explosion2_5', 'assets/explosions/explosion2/explosion2 (5).png');
+    this.load.image('explosion2_6', 'assets/explosions/explosion2/explosion2 (6).png');
+    this.load.image('explosion2_7', 'assets/explosions/explosion2/explosion2 (7).png');
+    this.load.image('explosion2_8', 'assets/explosions/explosion2/explosion2 (8).png');
+    this.load.image('explosion2_9', 'assets/explosions/explosion2/explosion2 (9).png');
+    this.load.image('explosion2_10', 'assets/explosions/explosion2/explosion2 (10).png');
+
+
+    this.load.image('explosion3_1', 'assets/explosions/explosion3/explosion3 (1).png');
+    this.load.image('explosion3_2', 'assets/explosions/explosion3/explosion3 (2).png');
+    this.load.image('explosion3_3', 'assets/explosions/explosion3/explosion3 (3).png');
+    this.load.image('explosion3_4', 'assets/explosions/explosion3/explosion3 (4).png');
+    this.load.image('explosion3_5', 'assets/explosions/explosion3/explosion3 (5).png');
+    this.load.image('explosion3_6', 'assets/explosions/explosion3/explosion3 (6).png');
+    this.load.image('explosion3_7', 'assets/explosions/explosion3/explosion3 (7).png');
+    this.load.image('explosion3_8', 'assets/explosions/explosion3/explosion3 (8).png');
+    this.load.image('explosion3_9', 'assets/explosions/explosion3/explosion3 (9).png');
+    this.load.image('explosion3_10', 'assets/explosions/explosion3/explosion3 (10).png');
+    this.load.image('explosion3_11', 'assets/explosions/explosion3/explosion3 (11).png');
+    this.load.image('explosion3_12', 'assets/explosions/explosion3/explosion3 (12).png');
+    this.load.image('explosion3_13', 'assets/explosions/explosion3/explosion3 (13).png');
+    this.load.image('explosion3_14', 'assets/explosions/explosion3/explosion3 (14).png');
+    this.load.image('explosion3_15', 'assets/explosions/explosion3/explosion3 (15).png');
+    this.load.image('explosion3_16', 'assets/explosions/explosion3/explosion3 (16).png');
+    this.load.image('explosion3_17', 'assets/explosions/explosion3/explosion3 (17).png');
+    this.load.image('explosion3_18', 'assets/explosions/explosion3/explosion3 (18).png');
+    this.load.image('explosion3_19', 'assets/explosions/explosion3/explosion3 (19).png');
+
 
 }
 
@@ -106,6 +198,21 @@ let grd;
 
 function create() {
 
+    backgroundMusic1 = this.sound.add('backgroundMusic1');
+    backgroundMusic2 = this.sound.add('backgroundMusic2');
+    backgroundMusic1.play();
+    backgroundMusic1.setVolume(0.2);
+    // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
+    this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 3000);  
+
+    powerUp = this.sound.add('powerUp');
+    powerUp.play()
+    powerUp.setVolume(0.5);
+    powerUp.setDetune(-1200);    
+    powerUp.setRate(2.0)
+
+
+    time = 0;
     bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
     stars = this.add.tileSprite(400, 300, 800, 600, 'stars').setScrollFactor(0);
     this.add.image(-730, 480, 'space', 'blue-planet').setOrigin(0).setScrollFactor(0.6).setScale(2)
@@ -174,6 +281,25 @@ function create() {
     });
 
 
+    this.anims.create({
+        key: 'explosion2_animation',
+        frames: [
+            { key: 'explosion2_1' },
+            { key: 'explosion2_2' },
+            { key: 'explosion2_3' },
+            { key: 'explosion2_4' },
+            { key: 'explosion2_5' },
+            { key: 'explosion2_6' },
+            { key: 'explosion2_7' },
+            { key: 'explosion2_8' },
+            { key: 'explosion2_9' },
+            { key: 'explosion2_10' },
+        ],
+        frameRate: 16,
+        repeat: 0
+    });
+
+
 
 
 
@@ -185,7 +311,7 @@ function create() {
 
 
     //  Using the Scene Data Plugin we can store data on a Scene level
-    this.data.set('lives', 3);
+    this.data.set('lives', lives);
     this.data.set('level', 1);
     this.data.set('score', 0);
     this.data.set('Bullets', '0')
@@ -233,6 +359,8 @@ function create() {
         ]);
     })
 
+
+
     var particles = this.add.particles('space');
 
 
@@ -277,7 +405,6 @@ function create() {
                 return Phaser.Math.Percent(100, 0, 1000);
             }
         },
-        // Añado la posición de la nave como la posición de emisión
         x: asteroid1.x,
         y: asteroid1.y,
         angle: {
@@ -300,7 +427,6 @@ function create() {
         initialize:
 
             function Bullet(scene) {
-                //esto es lo mio
                 Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
                 this.speed = Phaser.Math.GetSpeed(600, 1);
 
@@ -337,6 +463,25 @@ function create() {
                 this.setVisible(false);
             }
 
+            if (asteroid1) {
+                if (Math.abs(this.y - asteroid1.y) < 20 && Math.abs(this.x - asteroid1.x) < 20) {
+                    this.setActive(false);
+                    this.setVisible(false);
+                    hits += 1;
+
+                    if (hits == 3) {
+                        asteroidDeathX = asteroid1.x;
+                        asteroidDeathY = asteroid1.y;
+                        asteroid1.destroy();
+                        asteroid1 = null
+                        emitter2.stop();
+                        hits = 0;
+                        score += 100;
+                    }
+                }
+            }
+
+
 
             text.setText([
                 'Level: ' + level,
@@ -350,13 +495,31 @@ function create() {
     });
 
     bullets = this.add.group({
+        defaultKey: 'bullet',
         classType: Bullet,
         maxSize: 10,
-        runChildUpdate: true
+        runChildUpdate: true,
+        collideWorldBounds: true
     });
-    console.log(bullets);
+
 
     fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+
+    this.physics.overlap(bullets, asteroid1, function (bullet, asteroid) {
+        // Incrementa la variable `hits` del asteroide en 1
+        hits += 1;
+
+        // Si el asteroide ha sido golpeado tres veces, destrúyelo pasado un segundo
+        if (hits == 3) {
+            asteroid1.destroy();
+            asteroid1 = null
+            emitter2.stop();
+
+
+            hits = 0;
+        }
+    }, null, this);
 
 
 
@@ -367,9 +530,26 @@ function create() {
 }
 
 function update(time, delta) {
+    gravity = (time - startTime) / 100000
 
-    gravity = time / 100000
 
+    if (Math.round(backgroundMusic1.seek) == 141) {
+        this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic1, 10000);        
+        backgroundMusic2.play();
+        backgroundMusic2.setVolume(0.2);
+        // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
+        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic2, 10000);
+
+    }
+    if (Math.round(backgroundMusic2.seek) == 141) {
+        backgroundMusic1.play();
+        backgroundMusic1.setVolume(0.2);
+        // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
+        this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic2, 10000);
+        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 10000);
+
+    }
+    
 
     if (asteroid1) {
         // actualiza la posición del sprite
@@ -380,6 +560,8 @@ function update(time, delta) {
 
 
         if (asteroid1.y > this.scale.height) {
+            lives -= 1;
+
             this.anims.create({
                 key: 'explosion1_animation',
                 frames: [
@@ -412,7 +594,7 @@ function update(time, delta) {
                 repeat: 0
             });
             explosion1 = this.physics.add.sprite(asteroid1.x, 550, 'explosion1')
-            .play('explosion1_animation').setScale(0.5)
+                .play('explosion1_animation').setScale(0.5)
             setTimeout(function () {
                 explosion1.destroy();
                 explosion1 = null;
@@ -420,10 +602,23 @@ function update(time, delta) {
 
             asteroid1.destroy();
             asteroid1 = null; // establece la variable en null para indicar que ya no existe
+            emitter2.stop();
+            hits = 0;
+            differenceHits = 0;
+            text.setText([
+                'Level: ' + level,
+                'Lives: ' + lives,
+                'Score: ' + score,
+                'Bullets: ' + totalBullets
+            ]);
+        }
+        if (lives == 0) {
+            this.scene.pause();
         }
 
     }
     else {
+
         this.anims.create({
             key: 'asteroid1_animation',
             frames: [
@@ -450,16 +645,41 @@ function update(time, delta) {
             frameRate: 16,
             repeat: -1
         });
+        
 
-        asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'asteroid1')
-            .play('asteroid1_animation').setScale(0.2)
+        asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), -10, 'asteroid1')
+            .play('asteroid1_animation').setScale(0.2)    
+            
+            
+            let particles = this.add.particles('space');
+
+            emitter2 = particles.createEmitter({
+                frame: 'yellow',
+                speed: 600,
+                lifespan: {
+                    onEmit: function (particle, key, t, value) {
+                        return Phaser.Math.Percent(100, 0, 300) * 500;
+                    }
+                },
+                alpha: {
+                    onEmit: function (particle, key, t, value) {
+                        return Phaser.Math.Percent(100, 0, 1000);
+                    }
+                },
+                x: asteroid1.x,
+                y: asteroid1.y,
+                angle: {
+                    onEmit: function (particle, key, t, value) {
+                        var v = Phaser.Math.Between(-10, 10);
+                        return (-90) + v;
+                    }
+                },
+                scale: { start: 1, end: 0 },
+                blendMode: 'ADD'
+            });
 
 
     }
-
-
-
-
 
     // comprueba si el sprite 'bulletCharge' ha sido creado
     if (bulletCharge) {
@@ -497,6 +717,87 @@ function update(time, delta) {
         emitter2.setPosition(asteroid1.x, asteroid1.y)
     }
 
+    //Si hits se incrementa, se crea una explosion2
+
+
+    if (hits != differenceHits) {
+
+        if (asteroid1) {
+            this.anims.create({
+                key: 'explosion2_animation',
+                frames: [
+                    { key: 'explosion2_1' },
+                    { key: 'explosion2_2' },
+                    { key: 'explosion2_3' },
+                    { key: 'explosion2_4' },
+                    { key: 'explosion2_5' },
+                    { key: 'explosion2_6' },
+                    { key: 'explosion2_7' },
+                    { key: 'explosion2_8' },
+                    { key: 'explosion2_9' },
+                    { key: 'explosion2_10' },
+                ],
+                frameRate: 16,
+                repeat: 0
+            });
+
+            explosion2 = this.physics.add.sprite(asteroid1.x, asteroid1.y, 'explosion2')
+                .play('explosion2_animation').setScale(0.1)
+            setTimeout(function () {
+                if (explosion2) {
+                    explosion2.destroy();
+                    explosion2 = null;
+                }
+            }, 1500);
+
+            differenceHits += 1;
+
+            if (hits == 0) {
+                differenceHits = 0;
+            }
+
+            if (hits == 0) {
+                this.anims.create({
+                    key: 'explosion3_animation',
+                    frames: [
+                        { key: 'explosion3_1' },
+                        { key: 'explosion3_2' },
+                        { key: 'explosion3_3' },
+                        { key: 'explosion3_4' },
+                        { key: 'explosion3_5' },
+                        { key: 'explosion3_6' },
+                        { key: 'explosion3_7' },
+                        { key: 'explosion3_8' },
+                        { key: 'explosion3_9' },
+                        { key: 'explosion3_10' },
+                        { key: 'explosion3_11' },
+                        { key: 'explosion3_12' },
+                        { key: 'explosion3_13' },
+                        { key: 'explosion3_14' },
+                        { key: 'explosion3_15' },
+                        { key: 'explosion3_16' },
+                        { key: 'explosion3_17' },
+                        { key: 'explosion3_18' },
+                        { key: 'explosion3_19' }
+                    ],
+                    frameRate: 16,
+                    repeat: 0
+                });
+            
+                explosion3 = this.physics.add.sprite(asteroidDeathX, asteroidDeathY , 'explosion3_1')
+                    .play('explosion3_animation').setScale(0.3)
+                    setTimeout(function () {
+                        explosion3.destroy();
+                        explosion3 = null;
+                    }, 1200);
+            }
+        }
+
+    }
+
+
+
+
 
 
     let physics = this.physics
@@ -521,6 +822,7 @@ function update(time, delta) {
     if (cursors.space.isDown && time > lastFired) {
         // Comprobar el número de balas disparadas
         if (totalBullets > 0) {
+
             // Crear una nueva bala y dispararla
             const bullet = bullets.get();
             if (bullet) {
