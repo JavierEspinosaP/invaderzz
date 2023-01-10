@@ -66,10 +66,16 @@ let differenceHits = 0;
 let startTime = 0
 let asteroidDeathX
 let asteroidDeathY
+let volumeBackgroundMusic1 = 0.1
 let backgroundMusic1
 let backgroundMusic2
 let powerUp
-
+let calibratingSystemSound
+let shipUpSound
+let shipDownSound
+let shipAcceleration = false
+let isPlaying = false
+let isStoping = false
 
 function togglePause() {
     gamePaused = !gamePaused;
@@ -99,6 +105,7 @@ function startCreate() {
     }, this);
 }
 
+
 function preload() {
 
     this.load.plugin('rexsoundfadeplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexsoundfadeplugin.min.js', true);
@@ -107,6 +114,9 @@ function preload() {
     this.load.audio('backgroundMusic1', 'assets/sounds/background.wav')
     this.load.audio('backgroundMusic2', 'assets/sounds/background2.wav')
     this.load.audio('powerUp', 'assets/sounds/powerUp.wav')
+    this.load.audio('calibratingSystem', 'assets/sounds/calibratingSystem.wav')
+    this.load.audio('startUp', 'assets/sounds/ship_power.wav')
+    this.load.audio('powerDown', 'assets/sounds/ship_down.wav')
 
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
@@ -198,16 +208,29 @@ let grd;
 
 function create() {
 
+
+    //Añade la musica de fondo y pone el volumen a 0.1
     backgroundMusic1 = this.sound.add('backgroundMusic1');
     backgroundMusic2 = this.sound.add('backgroundMusic2');
-    backgroundMusic1.play();
-    backgroundMusic1.setVolume(0.2);
-    // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
-    this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 3000);  
+    shipUpSound = this.sound.add('startUp')
+    shipDownSound = this.sound.add('powerDown')
+    backgroundMusic1.play()
+    calibratingSystemSound = this.sound.add('calibratingSystem');
+    setTimeout(() => {
+    calibratingSystemSound.play()
+    calibratingSystemSound.setVolume(0.2);        
+    }, 1000);
 
+
+
+    // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
+    this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 5000, 0.5, 0);  
+
+
+    
     powerUp = this.sound.add('powerUp');
     powerUp.play()
-    powerUp.setVolume(0.5);
+    powerUp.setVolume(0.3);
     powerUp.setDetune(-1200);    
     powerUp.setRate(2.0)
 
@@ -536,17 +559,17 @@ function update(time, delta) {
     if (Math.round(backgroundMusic1.seek) == 141) {
         this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic1, 10000);        
         backgroundMusic2.play();
-        backgroundMusic2.setVolume(0.2);
         // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
-        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic2, 10000);
+        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic2, 10000, 0.5, 0);
 
     }
     if (Math.round(backgroundMusic2.seek) == 141) {
         backgroundMusic1.play();
         backgroundMusic1.setVolume(0.2);
+        console.log(backgroundMusic1.volume);
         // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
         this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic2, 10000);
-        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 10000);
+        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 10000, 0.5, 0);
 
     }
     
@@ -802,11 +825,45 @@ function update(time, delta) {
 
     let physics = this.physics
 
+    if (shipUpSound.isPlaying) {
+        isPlaying = true
+    }
+        
+    else {
+        isPlaying = false
+
+    }
+    
+    if (ship.body.acceleration.x !== 0 || ship.body.acceleration.y !== 0) {
+        shipAcceleration = true
+    }
+    else {
+        shipAcceleration = false
+    }
+
+    if (shipAcceleration === true && isPlaying === false) {
+        shipUpSound.play()
+    }
+    if (keyW.isUp && shipAcceleration === false) {
+        shipUpSound.stop()
+    }
+
+    if (ship.body.acceleration.x < 0 || ship.body.acceleration.y < 0) {
+        shipDownSound.play()
+      }
+
+    console.log('seek: ', shipUpSound.seek);
+    console.log(ship.body.acceleration);
+ 
+
+
     if (keyW.isDown) {
         physics.velocityFromRotation(ship.rotation + 300, 500, ship.body.acceleration);
+        shipDownSound.stop()
     }
     else {
         ship.setAcceleration(0);
+        
     }
 
     if (keyA.isDown) {
@@ -818,6 +875,11 @@ function update(time, delta) {
     else {
         ship.setAngularVelocity(0);
     }
+
+    if(keyW.isUp){
+        
+    }
+
 
     if (cursors.space.isDown && time > lastFired) {
         // Comprobar el número de balas disparadas
