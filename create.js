@@ -6,24 +6,33 @@ function create() {
     backgroundMusic2 = this.sound.add('backgroundMusic2');
     shipUpSound = this.sound.add('startUp')
     shipDownSound = this.sound.add('powerDown')
+    laserShoot = this.sound.add('laser')
+    laserShoot.setVolume(0.2).setDetune(-400)
     backgroundMusic1.play()
-    calibratingSystemSound = this.sound.add('calibratingSystem');
-    setTimeout(() => {
-    calibratingSystemSound.play()
-    calibratingSystemSound.setVolume(0.2);        
-    }, 1000);
-
+    bulletImpactSound = this.sound.add('bulletImpact')
+    bulletImpactSound.setVolume(0.2)
+    asteroidDestroyedSound = this.sound.add('asteroidDestroyed')
+    asteroidDestroyedSound.setVolume(0.3).setDetune(-1000).setRate(2)
+    asteroidImpactSound = this.sound.add('asteroidImpact')
+    asteroidImpactSound.setVolume(0.3).setDetune(-300)
+    bulletChargeSound = this.sound.add('bulletCharge')
+    bulletChargeSound.setVolume(0.2).setDetune(300)
+    lateralMovementSound = this.sound.add('lateralMovement')
+    lateralMovementSound.setVolume(0.2)
+    // calibratingSystemSound = this.sound.add('calibratingSystem');
+    // calibratingSystemSound.play()
+    // calibratingSystemSound.setVolume(0.2);       
 
 
     // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
-    this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 5000, 0.5, 0);  
+    this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 5000, 0.5, 0);
 
 
-    
+
     powerUp = this.sound.add('powerUp');
     powerUp.play()
     powerUp.setVolume(0.3);
-    powerUp.setDetune(-1200);    
+    powerUp.setDetune(-1200);
     powerUp.setRate(2.0)
 
 
@@ -146,7 +155,7 @@ function create() {
 
 
     ship.setDamping(true);
-    ship.setDrag(0.3);
+    ship.setDrag(0.5);
     //nuevo
     ship.setAngularDrag(400);
     //
@@ -163,6 +172,7 @@ function create() {
 
     this.physics.add.overlap(ship, bulletCharge, function () {
         bulletCharge.destroy();
+        bulletChargeSound.play();
         // aumenta en 10 el contador de balas
         totalBullets += 10;
         // actualiza el contador de balas en la pantalla
@@ -330,8 +340,6 @@ function create() {
             asteroid1.destroy();
             asteroid1 = null
             emitter2.stop();
-
-
             hits = 0;
         }
     }, null, this);

@@ -70,7 +70,9 @@ function update(time, delta) {
 
             asteroid1.destroy();
             asteroid1 = null; // establece la variable en null para indicar que ya no existe
+            asteroidImpactSound.play();
             emitter2.stop();
+
             hits = 0;
             differenceHits = 0;
             text.setText([
@@ -164,6 +166,7 @@ function update(time, delta) {
         bulletCharge = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'bullet_charge');
         bulletCharge.setScale(0.4);
         this.physics.add.overlap(ship, bulletCharge, function () {
+            bulletChargeSound.play();
             bulletCharge.destroy();
             // aumenta en 10 el contador de balas
             totalBullets += 10;
@@ -217,6 +220,7 @@ function update(time, delta) {
                     explosion2 = null;
                 }
             }, 1500);
+            bulletImpactSound.play();
 
             differenceHits += 1;
 
@@ -258,6 +262,10 @@ function update(time, delta) {
                         explosion3.destroy();
                         explosion3 = null;
                     }, 1200);
+                setTimeout(function () {
+                  asteroidDestroyedSound.play();  
+                }, 100)
+                
             }
         }
 
@@ -307,7 +315,7 @@ function update(time, delta) {
     }, 50);
 
     let configShipDownSound = {
-        seek: 1/ship.body.speed*100
+        seek: 1/ship.body.speed*200
     }
 
 
@@ -318,25 +326,36 @@ function update(time, delta) {
  
     if (keyW.isDown) {
         physics.velocityFromRotation(ship.rotation + 300, 500, ship.body.acceleration);
+        console.log(ship.rotation);
+        console.log(ship.body.acceleration);
         shipDownSound.stop()
     }
     else {
         ship.setAcceleration(0);
-        
+
     }
 
     if (keyA.isDown) {
         ship.setAngularVelocity(-300);
+        if (!lateralMovementSound.isPlaying) {
+         lateralMovementSound.play()   
+        }
+        else if (lateralMovementSound.seek == 1) {
+            lateralMovementSound.play({seek: 0.2})
+        }
     }
     else if (keyD.isDown) {
         ship.setAngularVelocity(300);
+        if (!lateralMovementSound.isPlaying) {
+            lateralMovementSound.play()   
+           }
+        else if (lateralMovementSound.seek == 1) {
+            lateralMovementSound.play({seek: 0.2})
+        }
     }
     else {
         ship.setAngularVelocity(0);
-    }
-
-    if(keyW.isUp){
-        
+        lateralMovementSound.stop()
     }
 
 
@@ -350,6 +369,7 @@ function update(time, delta) {
                 bullet.fire(ship.x, ship.y);
                 lastFired = time + 100;
                 totalBullets--; // Incrementar el contador de balas disparadas
+                laserShoot.play()
             }
         } else {
             // Si se ha disparado el número máximo de balas permitido, deshabilitar el disparo
