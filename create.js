@@ -3,7 +3,6 @@ function create() {
 
     //Añade la musica de fondo y pone el volumen a 0.1
     backgroundMusic1 = this.sound.add('backgroundMusic1');
-    backgroundMusic2 = this.sound.add('backgroundMusic2');
     shipUpSound = this.sound.add('startUp')
     shipDownSound = this.sound.add('powerDown')
     laserShoot = this.sound.add('laser')
