@@ -43,3 +43,10 @@ let shipAcceleration = false
 let isPlaying = false
 let isStoping = false
 let shipSpeed
+let laserShoot
+let bulletImpactSound
+let asteroidDestroyedSound
+let asteroidImpactSound
+let bulletChargeSound
+let lateralMovementSound
+let shipEnergy = 1000

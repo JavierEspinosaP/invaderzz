@@ -29,12 +29,12 @@ var config = {
     },
     backgroundColor: '#2d2d2d',
     parent: 'phaser-example',
-    scene: [startConfig, demoSceneConfig]
+    scene: [startConfig, demoSceneConfig],
+    failIfMajorPerformanceCaveat: true
 };
 
 let game = new Phaser.Game(config);
 
-game.canvas.willReadFrequently = true;
 
 
 function startLoader() {
