@@ -139,6 +139,7 @@ function create() {
     this.data.set('level', 1);
     this.data.set('score', 0);
     this.data.set('Bullets', '0')
+    this.data.set('Energy', shipEnergy)
 
     text = this.add.text(50, 50, '', { font: '16px PressStart', fill: '#ffd900' });
 
@@ -146,7 +147,8 @@ function create() {
         'Level: ' + this.data.get('level'),
         'Lives: ' + this.data.get('lives'),
         'Score: ' + this.data.get('score'),
-        'Bullets: ' + totalBullets
+        'Bullets: ' + totalBullets,
+        'Energy: ' + shipEnergy
     ]);
 
 

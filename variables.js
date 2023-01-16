@@ -49,3 +49,4 @@ let asteroidDestroyedSound
 let asteroidImpactSound
 let bulletChargeSound
 let lateralMovementSound
+let shipEnergy = 1000

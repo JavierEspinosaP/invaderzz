@@ -2,18 +2,19 @@ function update(time, delta) {
     gravity = (time - startTime) / 100000
 
 
+    text.setText([
+        'Level: ' + level,
+        'Lives: ' + lives,
+        'Score: ' + score,
+        'Bullets: ' + totalBullets,
+        'Energy: ' + Math.round(shipEnergy)
+    ]);
+
+
     if (Math.round(backgroundMusic1.seek) == 141) {
         this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic1, 10000);        
-        backgroundMusic2.play();
-        // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
-        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic2, 10000, 0.5, 0);
-
-    }
-    if (Math.round(backgroundMusic2.seek) == 141) {
         backgroundMusic1.play();
-        backgroundMusic1.setVolume(0.2);
         // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
-        this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic2, 10000);
         this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 10000, 0.5, 0);
 
     }
@@ -79,7 +80,8 @@ function update(time, delta) {
                 'Level: ' + level,
                 'Lives: ' + lives,
                 'Score: ' + score,
-                'Bullets: ' + totalBullets
+                'Bullets: ' + totalBullets,
+                'Energy: ' + shipEnergy
             ]);
         }
         if (lives == 0) {
@@ -175,7 +177,8 @@ function update(time, delta) {
                 'Level: ' + level,
                 'Lives: ' + lives,
                 'Score: ' + score,
-                'Bullets: ' + totalBullets
+                'Bullets: ' + totalBullets,
+                'Energy: ' + Math.round(shipEnergy)
             ]);
         });
     }
@@ -324,10 +327,9 @@ function update(time, delta) {
       }
 
  
-    if (keyW.isDown) {
-        physics.velocityFromRotation(ship.rotation + 300, 500, ship.body.acceleration);
-        console.log(ship.rotation);
-        console.log(ship.body.acceleration);
+    if (keyW.isDown && shipEnergy > 0) {
+        physics.velocityFromRotation(ship.rotation + 300, 500, ship.body.acceleration);  
+        shipEnergy -= 0.1    
         shipDownSound.stop()
     }
     else {
