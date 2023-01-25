@@ -3,10 +3,8 @@ function preload() {
     this.load.plugin('rexsoundfadeplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexsoundfadeplugin.min.js', true);
 
 
-    this.load.audio('backgroundMusic1', 'assets/sounds/background.wav')
-    this.load.audio('backgroundMusic2', 'assets/sounds/background2.wav')
+    this.load.audio('backgroundMusic1', 'assets/sounds/background.mp3')
     this.load.audio('powerUp', 'assets/sounds/initial_sounds.wav')
-    this.load.audio('calibratingSystem', 'assets/sounds/calibratingSystem.wav')
     this.load.audio('startUp', 'assets/sounds/ship_power2.wav')
     this.load.audio('powerDown', 'assets/sounds/ship_down.wav')
     this.load.audio('laser', 'assets/sounds/bullet.wav')
@@ -15,10 +13,12 @@ function preload() {
     this.load.audio('asteroidImpact', 'assets/sounds/asteroid_impact.wav')
     this.load.audio('bulletCharge', 'assets/sounds/bullet_charge.wav')
     this.load.audio('lateralMovement', 'assets/sounds/lateral_movement.wav')
+    this.load.audio('energySound', 'assets/sounds/energy_charge.wav')
 
     this.load.image('ship', 'assets/player.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('bullet_charge', 'assets/bullet_charge.png');
+    this.load.image('energy', 'assets/energy.png');
     this.load.image('background', 'assets/nebula.jpg');
     this.load.atlas('space', 'assets/space.png', 'assets/space.json');
     this.load.image('stars', 'assets/stars.png');

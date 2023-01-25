@@ -2,7 +2,7 @@ function create() {
 
 
     //Añade la musica de fondo y pone el volumen a 0.1
-    backgroundMusic1 = this.sound.add('backgroundMusic1');
+    backgroundMusic1 = this.sound.add('backgroundMusic1').setVolume(0.5);
     shipUpSound = this.sound.add('startUp')
     shipDownSound = this.sound.add('powerDown')
     laserShoot = this.sound.add('laser')
@@ -18,13 +18,15 @@ function create() {
     bulletChargeSound.setVolume(0.2).setDetune(300)
     lateralMovementSound = this.sound.add('lateralMovement')
     lateralMovementSound.setVolume(0.2)
+    energySound = this.sound.add('energySound')
+    energySound.setVolume(0.5)
     // calibratingSystemSound = this.sound.add('calibratingSystem');
     // calibratingSystemSound.play()
     // calibratingSystemSound.setVolume(0.2);       
 
 
     // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
-    this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 5000, 0.5, 0);
+    // this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 5000, 0.5, 0);
 
 
 
@@ -122,7 +124,12 @@ function create() {
         repeat: 0
     });
 
+    //Cambia el valor de randomizer para randomizar la aparición del icono de energía o el de balas
 
+    setInterval(() => {
+        //declarar la variable randomizer y asignarle un valor 0 o 1
+        randomizer = Math.round(Math.random());
+    }, Math.random() * 5000 + 5000);
 
 
 
@@ -165,6 +172,8 @@ function create() {
     ship.setDepth(15);
 
     bulletCharge = this.physics.add.sprite(200, 0, 'bullet_charge');
+
+    // energyIcon = this.physics.add.sprite(200, -100, 'energy');
 
     bulletCharge.setScale(0.4);
 
@@ -336,7 +345,6 @@ function create() {
         // Incrementa la variable `hits` del asteroide en 1
         hits += 1;
 
-        // Si el asteroide ha sido golpeado tres veces, destrúyelo pasado un segundo
         if (hits == 3) {
             asteroid1.destroy();
             asteroid1 = null

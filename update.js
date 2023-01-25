@@ -2,6 +2,16 @@ function update(time, delta) {
     gravity = (time - startTime) / 100000
 
 
+
+    console.log(randomizer)
+
+    if (randomizer == 1) {
+        setTimeout(() => {
+            randomizer = 0
+        }, 60);
+    }
+
+
     text.setText([
         'Level: ' + level,
         'Lives: ' + lives,
@@ -10,15 +20,6 @@ function update(time, delta) {
         'Energy: ' + Math.round(shipEnergy)
     ]);
 
-
-    if (Math.round(backgroundMusic1.seek) == 141) {
-        this.plugins.get('rexsoundfadeplugin').fadeOut(backgroundMusic1, 10000);        
-        backgroundMusic1.play();
-        // Reproduce la pista de audio y desvanece su volumen al mismo tiempo
-        this.plugins.get('rexsoundfadeplugin').fadeIn(backgroundMusic1, 10000, 0.5, 0);
-
-    }
-    
 
     if (asteroid1) {
         // actualiza la posición del sprite
@@ -117,40 +118,59 @@ function update(time, delta) {
             frameRate: 16,
             repeat: -1
         });
-        
+
 
         asteroid1 = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), -10, 'asteroid1')
-            .play('asteroid1_animation').setScale(0.2)    
-            
-            
-            let particles = this.add.particles('space');
-
-            emitter2 = particles.createEmitter({
-                frame: 'yellow',
-                speed: 600,
-                lifespan: {
-                    onEmit: function (particle, key, t, value) {
-                        return Phaser.Math.Percent(100, 0, 300) * 500;
-                    }
-                },
-                alpha: {
-                    onEmit: function (particle, key, t, value) {
-                        return Phaser.Math.Percent(100, 0, 1000);
-                    }
-                },
-                x: asteroid1.x,
-                y: asteroid1.y,
-                angle: {
-                    onEmit: function (particle, key, t, value) {
-                        var v = Phaser.Math.Between(-10, 10);
-                        return (-90) + v;
-                    }
-                },
-                scale: { start: 1, end: 0 },
-                blendMode: 'ADD'
-            });
+            .play('asteroid1_animation').setScale(0.2)
 
 
+        let particles = this.add.particles('space');
+
+        emitter2 = particles.createEmitter({
+            frame: 'yellow',
+            speed: 600,
+            lifespan: {
+                onEmit: function (particle, key, t, value) {
+                    return Phaser.Math.Percent(100, 0, 300) * 500;
+                }
+            },
+            alpha: {
+                onEmit: function (particle, key, t, value) {
+                    return Phaser.Math.Percent(100, 0, 1000);
+                }
+            },
+            x: asteroid1.x,
+            y: asteroid1.y,
+            angle: {
+                onEmit: function (particle, key, t, value) {
+                    var v = Phaser.Math.Between(-10, 10);
+                    return (-90) + v;
+                }
+            },
+            scale: { start: 1, end: 0 },
+            blendMode: 'ADD'
+        });
+
+
+    }
+
+    if(!energyIcon && randomizer == 1){
+        energyIcon = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'energy');
+        energyIcon.setScale(0.6);
+        //si energyIcon coliisiona con el jugador, se destruye y se añade 10 de energía
+        this.physics.add.overlap(ship, energyIcon, function(){
+            energyIcon.destroy();
+            energyIcon = null;
+            shipEnergy += 30;
+            energySound.play();
+        });
+    }
+    else if(energyIcon){
+        energyIcon.y += 2;
+        if (energyIcon.y > this.scale.height) {
+            energyIcon.destroy();
+            energyIcon = null;
+        }
     }
 
     // comprueba si el sprite 'bulletCharge' ha sido creado
@@ -163,7 +183,7 @@ function update(time, delta) {
             bulletCharge = null; // establece la variable en null para indicar que ya no existe
         }
     }
-    else {
+    else{
         // si el sprite no existe, crea uno nuevo con coordenadas x aleatorias
         bulletCharge = this.physics.add.sprite(Phaser.Math.Between(30, this.scale.width - 30), 0, 'bullet_charge');
         bulletCharge.setScale(0.4);
@@ -258,17 +278,17 @@ function update(time, delta) {
                     frameRate: 16,
                     repeat: 0
                 });
-            
-                explosion3 = this.physics.add.sprite(asteroidDeathX, asteroidDeathY , 'explosion3_1')
+
+                explosion3 = this.physics.add.sprite(asteroidDeathX, asteroidDeathY, 'explosion3_1')
                     .play('explosion3_animation').setScale(0.3)
-                    setTimeout(function () {
-                        explosion3.destroy();
-                        explosion3 = null;
-                    }, 1200);
                 setTimeout(function () {
-                  asteroidDestroyedSound.play();  
+                    explosion3.destroy();
+                    explosion3 = null;
+                }, 1200);
+                setTimeout(function () {
+                    asteroidDestroyedSound.play();
                 }, 100)
-                
+
             }
         }
 
@@ -279,12 +299,12 @@ function update(time, delta) {
     if (shipUpSound.isPlaying) {
         isPlaying = true
     }
-        
+
     else {
         isPlaying = false
 
     }
-    
+
     if (ship.body.acceleration.x !== 0 || ship.body.acceleration.y !== 0) {
         shipAcceleration = true
     }
@@ -293,7 +313,7 @@ function update(time, delta) {
     }
 
     let configShipUpSound = {
-        seek: ship.body.speed/500
+        seek: ship.body.speed / 500
     }
 
 
@@ -301,7 +321,7 @@ function update(time, delta) {
         shipUpSound.play(configShipUpSound)
     }
     if (shipAcceleration === true && shipUpSound.seek > 20) {
-        shipUpSound.play({seek: 5})
+        shipUpSound.play({ seek: 5 })
     }
     if (keyW.isUp && shipAcceleration === false) {
         shipUpSound.stop()
@@ -309,27 +329,27 @@ function update(time, delta) {
 
     setInterval(() => {
         if (ship.body.speed > 30) {
-         shipSpeed = ship.body.speed   
+            shipSpeed = ship.body.speed
         }
         else {
             shipSpeed = 0
         }
-        
+
     }, 50);
 
     let configShipDownSound = {
-        seek: 1/ship.body.speed*200
+        seek: 1 / ship.body.speed * 200
     }
 
 
     if (shipSpeed > ship.body.speed && shipDownSound.isPlaying === false) {
         shipDownSound.play(configShipDownSound)
-      }
+    }
 
- 
+
     if (keyW.isDown && shipEnergy > 0) {
-        physics.velocityFromRotation(ship.rotation + 300, 500, ship.body.acceleration);  
-        shipEnergy -= 0.1    
+        physics.velocityFromRotation(ship.rotation + 300, 500, ship.body.acceleration);
+        shipEnergy -= 0.1
         shipDownSound.stop()
     }
     else {
@@ -340,19 +360,19 @@ function update(time, delta) {
     if (keyA.isDown) {
         ship.setAngularVelocity(-300);
         if (!lateralMovementSound.isPlaying) {
-         lateralMovementSound.play()   
+            lateralMovementSound.play()
         }
         else if (lateralMovementSound.seek == 1) {
-            lateralMovementSound.play({seek: 0.2})
+            lateralMovementSound.play({ seek: 0.2 })
         }
     }
     else if (keyD.isDown) {
         ship.setAngularVelocity(300);
         if (!lateralMovementSound.isPlaying) {
-            lateralMovementSound.play()   
-           }
+            lateralMovementSound.play()
+        }
         else if (lateralMovementSound.seek == 1) {
-            lateralMovementSound.play({seek: 0.2})
+            lateralMovementSound.play({ seek: 0.2 })
         }
     }
     else {
