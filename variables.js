@@ -49,4 +49,7 @@ let asteroidDestroyedSound
 let asteroidImpactSound
 let bulletChargeSound
 let lateralMovementSound
-let shipEnergy = 1000
+let shipEnergy = 300
+let energyIcon
+let randomizer = 0
+let energySound
