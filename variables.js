@@ -2,7 +2,7 @@
 let bullets;
 let totalBullets = 50;
 let level = 1;
-let lives = 90;
+let lives = 3;
 let score = 0;
 let ship;
 let speed;
@@ -53,3 +53,5 @@ let shipEnergy = 300
 let energyIcon
 let randomizer = 0
 let energySound
+let gameOverSound
+let enter

@@ -20,6 +20,8 @@ function create() {
     lateralMovementSound.setVolume(0.2)
     energySound = this.sound.add('energySound')
     energySound.setVolume(0.5)
+    gameOverSound = this.sound.add('gameOverSound')
+    gameOverSound.setVolume(0.5)
     // calibratingSystemSound = this.sound.add('calibratingSystem');
     // calibratingSystemSound.play()
     // calibratingSystemSound.setVolume(0.2);       
@@ -142,7 +144,6 @@ function create() {
 
     //  Using the Scene Data Plugin we can store data on a Scene level
     this.data.set('lives', lives);
-    this.data.set('level', 1);
     this.data.set('score', 0);
     this.data.set('Bullets', '0')
     this.data.set('Energy', shipEnergy)
@@ -150,7 +151,6 @@ function create() {
     text = this.add.text(50, 50, '', { font: '16px PressStart', fill: '#ffd900' });
 
     text.setText([
-        'Level: ' + this.data.get('level'),
         'Lives: ' + this.data.get('lives'),
         'Score: ' + this.data.get('score'),
         'Bullets: ' + totalBullets,
@@ -187,7 +187,6 @@ function create() {
         totalBullets += 10;
         // actualiza el contador de balas en la pantalla
         text.setText([
-            'Level: ' + level,
             'Lives: ' + lives,
             'Score: ' + score,
             'Bullets: ' + totalBullets
@@ -319,7 +318,6 @@ function create() {
 
 
             text.setText([
-                'Level: ' + level,
                 'Lives: ' + lives,
                 'Score: ' + score,
                 'Bullets: ' + totalBullets

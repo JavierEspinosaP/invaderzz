@@ -2,9 +2,6 @@ function update(time, delta) {
     gravity = (time - startTime) / 100000
 
 
-
-    console.log(randomizer)
-
     if (randomizer == 1) {
         setTimeout(() => {
             randomizer = 0
@@ -13,7 +10,6 @@ function update(time, delta) {
 
 
     text.setText([
-        'Level: ' + level,
         'Lives: ' + lives,
         'Score: ' + score,
         'Bullets: ' + totalBullets,
@@ -78,17 +74,21 @@ function update(time, delta) {
             hits = 0;
             differenceHits = 0;
             text.setText([
-                'Level: ' + level,
                 'Lives: ' + lives,
                 'Score: ' + score,
                 'Bullets: ' + totalBullets,
-                'Energy: ' + shipEnergy
+                'Energy: ' + Math.round(shipEnergy)
             ]);
         }
         if (lives == 0) {
             this.scene.pause();
+            gameOverSound.play()        
+            this.scene.start('gameOver');
+            this.time.now = 0;
+            backgroundMusic1.stop();
+            shipUpSound.stop();
+            shipDownSound.stop();
         }
-
     }
     else {
 
@@ -194,7 +194,6 @@ function update(time, delta) {
             totalBullets += 10;
             // actualiza el contador de balas en la pantalla
             text.setText([
-                'Level: ' + level,
                 'Lives: ' + lives,
                 'Score: ' + score,
                 'Bullets: ' + totalBullets,
@@ -328,13 +327,16 @@ function update(time, delta) {
     }
 
     setInterval(() => {
+        //si la escena es 'GameScene' y la velocidad del ship es mayor que 30, la variable shipSpeed toma el valor de la velocidad del ship
+        if (ship.body) {
         if (ship.body.speed > 30) {
             shipSpeed = ship.body.speed
         }
         else {
             shipSpeed = 0
+        }                
         }
-
+        
     }, 50);
 
     let configShipDownSound = {
