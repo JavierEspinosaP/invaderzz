@@ -55,3 +55,4 @@ let randomizer = 0
 let energySound
 let gameOverSound
 let enter
+let numberOfGames = 0

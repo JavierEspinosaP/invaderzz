@@ -78,8 +78,8 @@ function gameOverCreate() {
     lives = 3
     totalBullets = 50;
     shipEnergy = 300;
+    numberOfGames++;
     this.add.text(400, 450, 'Tu puntuación: ' + score,  { font: '15px Courier', fill: '#ffd900' }).setOrigin(0.5);
-    this.add.text(400, 500, 'Para jugar de nuevo, presiona ENTER', { font: '15px Courier', fill: '#ffd900' }).setOrigin(0.5);
     score = 0
     console.log(this.scene.key);
 }
