@@ -99,24 +99,32 @@ function preload() {
     this.load.image('explosion3_18', 'assets/explosions/explosion3/explosion3 (18).png');
     this.load.image('explosion3_19', 'assets/explosions/explosion3/explosion3 (19).png');
 
-    let progress = this.add.graphics();
-    let progressText = this.add.text(this.sys.game.config.width/2, this.sys.game.config.height/2, '0%', { font: '32px Arial', fill: '#ffffff' }).setOrigin(0.5);
-    let resourceText = this.add.text(this.sys.game.config.width/2, this.sys.game.config.height/2 + 50, '', { font: '18px Arial', fill: '#ffd900' }).setOrigin(0.5);
-  
-    this.load.on('progress', (value) => {
-      progressText.setText(parseInt(value * 100) + '%');
-      progress.clear();
-      progress.fillStyle(0xffd700, 1);
-      progress.fillRect(this.sys.game.config.width/2 - 150, this.sys.game.config.height/2 - 30, 300 * value, 60);
-      progress.lineStyle(4, 0xffd700, 1);
-      progress.strokeRect(this.sys.game.config.width/2 - 150, this.sys.game.config.height/2 - 30, 300, 60);
-    });
-  
-    this.load.on('fileprogress', (file) => {
-      resourceText.setText('Cargando recurso: ' + file.key);
-    });
+        console.log(numberOfGames);  
 
+        let progress = this.add.graphics();
+        let progressText = this.add.text(this.sys.game.config.width/2, this.sys.game.config.height/2, '0%', { font: '32px Arial', fill: '#ffffff' }).setOrigin(0.5);
+        let resourceText = this.add.text(this.sys.game.config.width/2, this.sys.game.config.height/2 + 50, '', { font: '18px Arial', fill: '#ffd900' }).setOrigin(0.5);
+      
+        this.load.on('progress', (value) => {
+            console.log(value);
 
-  
+            progressText.setText(parseInt(value * 100) + '%');
+            progress.clear();
+            progress.fillStyle(0xffd700, 1);
+            progress.fillRect(this.sys.game.config.width/2 - 150, this.sys.game.config.height/2 - 30, 300 * value, 60);
+            progress.lineStyle(4, 0xffd700, 1);
+            progress.strokeRect(this.sys.game.config.width/2 - 150, this.sys.game.config.height/2 - 30, 300, 60);   
 
-}
+          this.load.on('fileprogress', (file) => {
+            resourceText.setText('Cargando recurso: ' + file.key);
+          });                            
+            }
+
+          )};         
+        
+
+    
+
+      
+    
+    
